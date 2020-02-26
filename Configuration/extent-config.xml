@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extentreports>
+    <configuration>
+        <!-- report theme -->
+        <!-- standard, dark -->
+        <theme>dark</theme>
+    
+        <!-- document encoding -->
+        <!-- defaults to UTF-8 -->
+        <encoding>UTF-8</encoding>
+        
+        <!-- protocol for script and stylesheets -->
+        <!-- defaults to https -->
+        <protocol>https</protocol>
+        
+        <!-- title of the document -->
+        <documentTitle>Extent</documentTitle>
+        
+        <!-- report name - displayed at top-nav -->
+        <reportName>Automation Report</reportName>
+        
+        <!-- location of charts in the test view -->
+        <!-- top, bottom -->
+        <testViewChartLocation>bottom</testViewChartLocation>
+		
+        <!-- settings to enable/disable views -->
+		<!-- professional version only -->
+		<enableCategoryView>true</enableCategoryView>
+		<enableAuthorView>false</enableAuthorView>
+		<enableExceptionView>true</enableExceptionView>
+		<enableTestRunnerLogsView>true</enableTestRunnerLogsView>
+
+		<!-- custom javascript -->
+		<scripts>
+            <![CDATA[
+                $(document).ready(function() {
+                    
+                });
+            ]]>
+		</scripts>
+
+		<!-- custom styles -->
+		<styles>
+		details {
+		  font: "Open Sans", Calibri, sans-serif;
+		  width: 100%;
+		}
+		
+		details > summary {
+		  color: white;
+		  padding: 2px 6px;
+		  width: 18em;
+		  background-color: FireBrick;
+		  border: none;
+		  box-shadow: 3px 3px 4px black;
+		  cursor: pointer;
+		  font-size: 1.25em;
+		  font-weight: bold;
+		  display: list-item;
+		  border-radius: 5px 5px 0 0;
+		}
+		
+		details > p {
+		  border-radius: 0 0 10px 10px;
+		  background-color: Salmon;
+		  padding: 2px 6px;
+		  margin: 0;
+		  box-shadow: 3px 3px 4px black;
+		}
+		
+		.tabbed {
+			display:inline-block;
+		    width:30px;
+		}
+            <![CDATA[
+                
+            ]]>
+		</styles>
+	</configuration>
+</extentreports>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+
+<suite name="Example 2 Suite - Banking App">
+	<listeners>
+		<listener class-name="com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.ExtentListener" />
+	</listeners>
+	
+	<parameter name="isGridTest"  value="false" />
+	<parameter name="runHeadless" value="false" />
+	<parameter name="runService"  value="true" />
+
+	<test name="Test 1">
+		<parameter name="browser" value="chrome" />
+		<classes>
+			<class name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests.Example2_001_Login" />
+			<!-- <class name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests.Example2_002_Login" /> -->
+			<!-- <class name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests.Example2_003_AddCustomer" /> -->
+		</classes>
+	</test>
+</suite>

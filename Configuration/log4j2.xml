@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+
+<Configuration status="WARN">
+
+
+	<Properties>
+		<Property name="BASE_PATH">$${sys:logsFolder}/$${date:yyyy}/$${date:MMM}/$${date:dd-MMM-yyyy}</Property>
+		<Property name="LOG_PATTERN">%d{MMM-dd-yyyy  hh:mm:ss.SSS a zzz (Z)}      [%t]      %-5level      %logger{36}      (%F:%05L)      %msg%n</Property>
+		<Property name="FILE_PATTERN">%d{dd-MMM-yyyy}__%03i</Property>
+	</Properties>
+
+
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT" follow="true">
+			<!-- <PatternLayout pattern="${LOG_PATTERN}" /> -->
+			<PatternLayout>
+                <ScriptPatternSelector defaultPattern="${LOG_PATTERN}">
+                    <Script name="selector" language="javascript"><![CDATA[
+						if(logEvent.getMessage().getFormattedMessage().equals("^^"))
+			            {
+			                "BLANKLINE";
+			            }
+			            else
+			            {
+			            	null;
+			         	}
+					]]></Script>
+                    <PatternMatch key="BLANKLINE" pattern="%n"/>
+                </ScriptPatternSelector>
+            </PatternLayout>
+		</Console>
+		
+		<RollingRandomAccessFile name="infoFiles" fileName="${BASE_PATH}/info.log" filePattern="${BASE_PATH}/info__${FILE_PATTERN}.log.gz">
+			<!-- <PatternLayout pattern="${LOG_PATTERN}" /> -->
+			<PatternLayout>
+                <ScriptPatternSelector defaultPattern="${LOG_PATTERN}">
+                    <Script name="selector" language="javascript"><![CDATA[
+						if(logEvent.getMessage().getFormattedMessage().equals("^^"))
+			            {
+			                "BLANKLINE";
+			            }
+			            else
+			            {
+			            	null;
+			         	}
+					]]></Script>
+                    <PatternMatch key="BLANKLINE" pattern="%n"/>
+                </ScriptPatternSelector>
+            </PatternLayout>
+			<Policies>
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+		</RollingRandomAccessFile>
+		
+		<RollingRandomAccessFile name="errorFiles" fileName="${BASE_PATH}/errors.log" filePattern="${BASE_PATH}/errors__${FILE_PATTERN}.log.gz">
+			<!-- <PatternLayout pattern="${LOG_PATTERN}" /> -->
+			<PatternLayout>
+                <ScriptPatternSelector defaultPattern="${LOG_PATTERN}">
+                    <Script name="selector" language="javascript"><![CDATA[
+						if(logEvent.getMessage().getFormattedMessage().equals("^^"))
+			            {
+			                "BLANKLINE";
+			            }
+			            else
+			            {
+			            	null;
+			         	}
+					]]></Script>
+                    <PatternMatch key="BLANKLINE" pattern="%n"/>
+                </ScriptPatternSelector>
+            </PatternLayout>
+			<Policies>
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+		</RollingRandomAccessFile>
+	</Appenders>
+
+
+	<Loggers>
+		<Root level="info" includeLocation="true">
+			<AppenderRef ref="console" />
+		</Root>
+		
+		<AsyncLogger name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests" additivity="true" includeLocation="true">
+			<AppenderRef ref="errorFiles" level="error" />
+			<AppenderRef ref="infoFiles" level="info" />
+		</AsyncLogger>
+	</Loggers>
+	
+	
+</Configuration>
