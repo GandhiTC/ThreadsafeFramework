@@ -163,12 +163,27 @@ public class DriverManager extends Configurations
 
 	private ChromeOptions getChromeOptions(String runHeadless)
 	{
+//		http://chromedriver.chromium.org/capabilities
+		
+		
 		ChromeOptions chromeOptions = new ChromeOptions();
 		chromeOptions.addArguments("--silent");
 //		chromeOptions.addArguments("--start-maximized");
 //		chromeOptions.addArguments("--ignore-certificate-errors");
 //		chromeOptions.addArguments("--disable-popup-blocking");
 //		chromeOptions.addArguments("--incognito");
+//		chromeOptions.addArguments("disable-notifications");
+		
+//		chromeOptions.addExtensions(new File("/path/to/extension.crx"));
+		
+//		Map<String, Object> prefs = new HashMap<String, Object>();
+//		prefs.put("profile.default_content_settings.popups", 0);
+//		chromeOptions.setExperimentalOption("prefs", prefs);
+		
+//		DesiredCapabilities capabilities=DesiredCapabilities.chrome();
+//		capabilities.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
+//		capabilities.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+//		chromeOptions.merge(capabilities);
 		
 //		chromeOptions.setCapability("browserVersion", "67");
 //		chromeOptions.setCapability("platformName", "Windows XP");
@@ -186,6 +201,10 @@ public class DriverManager extends Configurations
 	{
 //		InternetExplorerOptions ieOptions = new InternetExplorerOptions().destructivelyEnsureCleanSession();
 		InternetExplorerOptions ieOptions = new InternetExplorerOptions();
+		
+//		DesiredCapabilities capabilities = DesiredCapabilities.internetExplorer();
+//		capabilities.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+//		ieOptions.merge(capabilities);
 		
 		return ieOptions;
 	}
