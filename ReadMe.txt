@@ -15,6 +15,9 @@ Base features include:
 	- Test options taken directly from TestNG .xml file so that they can easily be changed on the fly
 	- Implements Page Object Model
 	- Separate trace and error logs via Log4j (v2)
+		- NOTE:  I've added a custom filter for the loggers used in this project
+			 If you log an error where the message is "^^", it will add a blank line to the logs.
+			 ie:  logger.error("^^");
 	- Screenshots of browser on test failure
 	- HTML reports that are easier to read and more visually appealing via ExtentReports (v4)
 		- Includes easy one-click access to screenshots for failed tests
