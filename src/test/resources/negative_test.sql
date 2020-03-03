@@ -1,1 +1,0 @@
-insert  into `xyz`(`1`,`2`,`3`) values ('A','B','C');

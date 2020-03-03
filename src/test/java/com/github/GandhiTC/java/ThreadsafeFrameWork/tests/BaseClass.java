@@ -122,7 +122,7 @@ public class BaseClass extends Configurations
 				{
 					System.out.println("\r\nCreating \"pomCredentials\" table in database.\r\n");
 					
-					db.parseSqlFile("Configuration/InsertTestTable.sql", false, true, false, false);
+					db.parseSqlFile("src/test/resources/InsertTestTable.sql", false, true, false, false);
 				}
 				
 				
