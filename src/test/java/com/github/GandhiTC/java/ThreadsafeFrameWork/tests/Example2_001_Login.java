@@ -41,7 +41,6 @@ public class Example2_001_Login extends BaseClass
 			Assert.assertEquals(driver().getTitle(), "Guru99 Bank Manager HomePage");
 			logger.info("Page title verified");
 			
-//			logger.info("Login test passed \n");
 			logger.info("Login test passed");
 			Assert.assertTrue(true);
 		}
@@ -49,7 +48,6 @@ public class Example2_001_Login extends BaseClass
 		{
 			context.setAttribute("ERRMSG", errMsg);
 			
-//			logger.error("Login test failed" + ", " + errMsg + "\n");
 			logger.error("Login test failed" + ", " + errMsg);
 			
 			throw new AssertionError(t);	//	Assert.fail(errMsg, t);

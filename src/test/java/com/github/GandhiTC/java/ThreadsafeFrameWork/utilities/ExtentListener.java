@@ -108,14 +108,18 @@ public class ExtentListener implements ITestListener, ISuiteListener
 				}
 			}
 		}
-
-
+		
+		
 		//	expandable stack trace
-		String exceptionMessage = Arrays.toString(result.getThrowable().getStackTrace());
+		String message		= result.getThrowable().getMessage();
+		String stackTrace 	= Arrays.toString(result.getThrowable().getStackTrace()).replaceAll(", ", "<br><span class=\"tabbed\"></span>");
 
-		testThread.get().fail("<details><summary>Exception Occured : Click To View</summary><p>"
-								+ "<span class=\"tabbed\"></span>"
-								+ exceptionMessage.replaceAll(", ", "<br><span class=\"tabbed\"></span>")
+		testThread.get().fail("<details>"
+								+ "<summary>Exception Occured : Click To View</summary>"
+								+ "<p><br>"
+								+ message
+								+ "<br><br>"
+								+ "<span class=\"tabbed\"></span>" + stackTrace
 								+ "</p></details>");
 	}
 

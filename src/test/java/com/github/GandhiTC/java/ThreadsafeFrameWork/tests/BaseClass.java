@@ -3,6 +3,8 @@ package com.github.GandhiTC.java.ThreadsafeFrameWork.tests;
 
 
 import java.net.MalformedURLException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +15,7 @@ import org.testng.ITestContext;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
+import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.JDBCDriver;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.Configurations;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.DriverManager;
 
@@ -20,11 +23,15 @@ import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.DriverManager;
 
 public class BaseClass extends Configurations
 {
-	public 		static 	Logger				logger;
-	private		static	ThreadLocal<Object>	threadedDriver	= new ThreadLocal<>();
-	private		static	DriverManager		driverManager	= new DriverManager();
-	private 	static	boolean				isRemote		= false;
-	private 	static	boolean				isHeadless		= false;
+	private		static			ThreadLocal<Object>	threadedDriver	= new ThreadLocal<>();
+	private		static			DriverManager		driverManager	= new DriverManager();
+	private 	static			boolean				isRemote		= false;
+	private 	static			boolean				isHeadless		= false;
+	protected	static 			Logger				logger;
+	protected 	static 	final 	JDBCDriver 			db 				= JDBCDriver.INSTANCE;
+	protected	static 			String				baseURL			= "";
+	protected 	static 		 	String				username		= "";
+	protected	static 		 	String				password		= "";
 
 
 	@BeforeTest
@@ -32,6 +39,7 @@ public class BaseClass extends Configurations
 	public static void setup(String browser, String runHeadless, String runService, String isGridTest, ITestContext testContext) throws MalformedURLException
 	{
 		setupLogging();
+		getCredentials();
 		
 		isRemote 	= isGridTest.equalsIgnoreCase("true") ? true : false;
 		isHeadless 	= runHeadless.equalsIgnoreCase("true") ? true : false;
@@ -55,6 +63,8 @@ public class BaseClass extends Configurations
 	@AfterTest
 	public static void tearDown()
 	{
+		db.closeConnection();
+		
 		if(driver() != null)
 		{
 			driver().quit();
@@ -88,16 +98,64 @@ public class BaseClass extends Configurations
 			return (WebDriver)threadedDriver.get();
 		}
 	}
+	
+	
+	public static Logger logger()
+	{
+		if(logger == null)
+		{
+			setupLogging();
+		}
+		
+		return logger;
+	}
+	
+	
+	protected static void getCredentials()
+	{
+		if(baseURL.equalsIgnoreCase("") || username.equalsIgnoreCase("") || password.equalsIgnoreCase(""))
+		{
+			try
+			{
+				//	Check if "pomCredentials" exists in the database.  If it does not, add it.
+				if(!db.checkIfTableExists("pomCredentials"))
+				{
+					System.out.println("\r\nCreating \"pomCredentials\" table in database.\r\n");
+					
+					db.parseSqlFile("Configuration/InsertTestTable.sql", false, true, false, false);
+				}
+				
+				
+				ResultSet resultSet = db.query("select * from pomCredentials");
+				
+				while (resultSet.next())
+				{
+					baseURL  = resultSet.getString("baseURL");
+					username = resultSet.getString("username");
+					password = resultSet.getString("password");
+				}
+			}
+			catch(SQLException e)
+			{
+				logger.error(e.getMessage());
+				e.printStackTrace();
+			}
+			finally
+			{
+				db.closeConnection();
+			}
+		}
+	}
 
 
 	public String randomString(int numOfChars)
 	{
-		return RandomStringUtils.randomAlphabetic(numOfChars);		//	8
+		return RandomStringUtils.randomAlphabetic(numOfChars);
 	}
 
 
-	public String randomNumber(int numOfChars)
+	public int randomNumber(int numOfChars)
 	{
-		return RandomStringUtils.randomNumeric(numOfChars);			//	4
+		return Integer.parseInt(RandomStringUtils.randomNumeric(numOfChars));
 	}
 }

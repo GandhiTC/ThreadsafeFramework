@@ -8,16 +8,16 @@ import java.util.Properties;
 
 
 
-public class ConfigReader
+class ConfigReader
 {
 	private Properties properties;
 
 
-	public ConfigReader()
+	ConfigReader()
 	{
 		try
 		{
-			File 			src = new File("./Configuration/config.properties");
+			File 			src = new File("./Configuration/testing.properties");
 			FileInputStream fis = new FileInputStream(src);
 			
 			properties = new Properties();
@@ -30,61 +30,61 @@ public class ConfigReader
 	}
 	
 	
-	public String getApplicationURL()
+	String getApplicationURL()
 	{
 		return properties.getProperty("baseURL");
 	}
 
 
-	public String getUsername()
+	String getUsername()
 	{
 		return properties.getProperty("username");
 	}
 
 
-	public String getPassword()
+	String getPassword()
 	{
 		return properties.getProperty("password");
 	}
 
 
-	public String getChromePath()
+	String getChromePath()
 	{
 		return properties.getProperty("chromepath");
 	}
 
 
-	public String getIEPath()
+	String getIEPath()
 	{
 		return properties.getProperty("iepath");
 	}
 
 
-	public String getFirefoxPath()
+	String getFirefoxPath()
 	{
 		return properties.getProperty("firefoxpath");
 	}
 	
 	
-	public String getEdgePath()
+	String getEdgePath()
 	{
 		return properties.getProperty("edgepath");
 	}
 	
 	
-	public String getLogsFolder()
+	String getLogsFolder()
 	{
 		return properties.getProperty("logsFolder");
 	}
 	
 	
-	public String getReportsFolder()
+	String getReportsFolder()
 	{
 		return properties.getProperty("reportsFolder");
 	}
 	
 	
-	public String getScreenshotsFolder()
+	String getScreenshotsFolder()
 	{
 		return properties.getProperty("screenshotsFolder");
 	}
