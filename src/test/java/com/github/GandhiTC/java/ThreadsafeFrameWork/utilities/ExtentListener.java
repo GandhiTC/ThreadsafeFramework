@@ -43,7 +43,12 @@ public class ExtentListener implements ITestListener, ISuiteListener
 					staticContext	= result.getTestContext();
 					logger 			= (Logger)staticContext.getAttribute("BaseLogger");
 					methodName 		= result.getMethod().getMethodName() + "()";
-		ExtentTest	test			= report.createTest(result.getTestClass().getName() + "." + methodName);
+		String		fullClassName	= result.getTestClass().getName();
+		int			periodIndex		= fullClassName.lastIndexOf(".");
+		String		packageName		= fullClassName.substring(0, periodIndex);
+		String		className		= fullClassName.substring(periodIndex + 1, fullClassName.length());
+//		ExtentTest	test			= report.createTest(result.getTestClass().getName() + "." + methodName);
+		ExtentTest	test			= report.createTest(packageName + "<br>" + className + "<br>" + methodName);
 		
 		testThread.set(test);
 	}
@@ -63,15 +68,15 @@ public class ExtentListener implements ITestListener, ISuiteListener
 	public void onTestFailure(ITestResult result)
 	{
 		ITestContext 	testContext	= result.getTestContext();
+		
+		
+		//	markup
 						logText		= "<b>TEST CASE FAILED : " + methodName + "</b>";
 						markup		= MarkupHelper.createLabel(logText, ExtentColor.RED);
-
-
-		//	markup
 		testThread.get().log(Status.FAIL, markup);
 
 
-		//	short error message from attribute
+		//	short error message from custom attribute
 		if(testContext.getAttribute("ERRMSG") != null)
 		{
 			testThread.get().fail(testContext.getAttribute("ERRMSG").toString());
