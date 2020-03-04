@@ -2,8 +2,9 @@ package com.github.GandhiTC.java.ThreadsafeFrameWork.utilities;
 
 
 
-import java.io.File;
-import java.io.FileInputStream;
+//import java.io.File;
+//import java.io.FileInputStream;
+import java.io.FileReader;
 import java.util.Properties;
 
 
@@ -17,11 +18,17 @@ class ConfigReader
 	{
 		try
 		{
-			File 			src = new File("./Configuration/testing.properties");
-			FileInputStream fis = new FileInputStream(src);
+//			File 			src 	= new File("./Configuration/testing.properties");
+//			FileInputStream fis 	= new FileInputStream(src);
+//
+//			properties = new Properties();
+//			properties.load(fis);
+			
+			
+			FileReader 		reader 	= new FileReader("./Configuration/testing.properties");
 			
 			properties = new Properties();
-			properties.load(fis);
+			properties.load(reader);
 		}
 		catch(Exception e)
 		{
@@ -30,62 +37,68 @@ class ConfigReader
 	}
 	
 	
+	String valueInQuotes(String propertyName)
+	{
+		return properties.getProperty(propertyName).replaceAll("\"", "");
+	}
+	
+	
 	String getApplicationURL()
 	{
-		return properties.getProperty("baseURL");
+		return valueInQuotes("baseURL");
 	}
 
 
 	String getUsername()
 	{
-		return properties.getProperty("username");
+		return valueInQuotes("username");
 	}
 
 
 	String getPassword()
 	{
-		return properties.getProperty("password");
+		return valueInQuotes("password");
 	}
 
 
 	String getChromePath()
 	{
-		return properties.getProperty("chromepath");
+		return valueInQuotes("chromepath");
 	}
 
 
 	String getIEPath()
 	{
-		return properties.getProperty("iepath");
+		return valueInQuotes("iepath");
 	}
 
 
 	String getFirefoxPath()
 	{
-		return properties.getProperty("firefoxpath");
+		return valueInQuotes("firefoxpath");
 	}
 	
 	
 	String getEdgePath()
 	{
-		return properties.getProperty("edgepath");
+		return valueInQuotes("edgepath");
 	}
 	
 	
 	String getLogsFolder()
 	{
-		return properties.getProperty("logsFolder");
+		return valueInQuotes("logsFolder");
 	}
 	
 	
 	String getReportsFolder()
 	{
-		return properties.getProperty("reportsFolder");
+		return valueInQuotes("reportsFolder");
 	}
 	
 	
 	String getScreenshotsFolder()
 	{
-		return properties.getProperty("screenshotsFolder");
+		return valueInQuotes("screenshotsFolder");
 	}
 }
