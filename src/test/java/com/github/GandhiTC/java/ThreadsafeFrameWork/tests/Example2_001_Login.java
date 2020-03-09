@@ -4,7 +4,7 @@ package com.github.GandhiTC.java.ThreadsafeFrameWork.tests;
 
 import java.awt.AWTException;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import org.openqa.selenium.By;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
@@ -17,14 +17,29 @@ public class Example2_001_Login extends BaseClass
 	@Test
 	public void loginTest(ITestContext context) throws IOException, AWTException, InterruptedException
 	{
-		driver().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-		driver().get(baseURL);
-		
-		LoginPage 	lp		= new LoginPage(driver());
-		String 		errMsg	= "";
+		String errMsg = "";
 		
 		try
 		{
+			getURL(baseURL, true);
+			
+			LoginPage 	lp	= new LoginPage(driver());
+			
+			
+			
+			By 			by 	= By.name("uid");
+			
+			if(elementExists(by))
+			{
+				inspectElement(driver().findElement(by));
+			}
+			else
+			{
+				System.err.println("Element does not exist.\r\n");
+			}
+			
+			
+			
 			errMsg = "Username webelement not found";
 			lp.setUserName(username);
 			logger.info("Entered username");
@@ -46,6 +61,12 @@ public class Example2_001_Login extends BaseClass
 		}
 		catch (Throwable t)
 		{
+			if(errMsg.isEmpty())
+			{
+				errMsg = t.getMessage();
+				t.printStackTrace();
+			}
+			
 			context.setAttribute("ERRMSG", errMsg);
 			
 			logger.error("Login test failed" + ", " + errMsg);

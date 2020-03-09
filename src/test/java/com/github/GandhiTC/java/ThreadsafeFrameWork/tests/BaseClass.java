@@ -5,16 +5,27 @@ package com.github.GandhiTC.java.ThreadsafeFrameWork.tests;
 import java.net.MalformedURLException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
+//import java.util.Iterator;
+//import java.util.Map;
+//import java.util.Map.Entry;
 import java.util.logging.Level;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.JDBCDriver;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.Configurations;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.DriverManager;
@@ -87,7 +98,7 @@ public class BaseClass extends Configurations
 	}
 
 
-	public static WebDriver driver()
+	protected static WebDriver driver()
 	{
 		if(isRemote == true)
 		{
@@ -100,7 +111,7 @@ public class BaseClass extends Configurations
 	}
 	
 	
-	public static Logger logger()
+	protected static Logger logger()
 	{
 		if(logger == null)
 		{
@@ -121,13 +132,13 @@ public class BaseClass extends Configurations
 				if(!db.checkIfTableExists("pomCredentials"))
 				{
 					System.out.println("\r\nCreating \"pomCredentials\" table in database.\r\n");
-					
+
 					db.parseSqlFile("src/test/resources/InsertTestTable.sql", false, true, false, false);
 				}
-				
-				
+
+
 				ResultSet resultSet = db.query("select * from pomCredentials");
-				
+
 				while (resultSet.next())
 				{
 					baseURL  = resultSet.getString("baseURL");
@@ -145,6 +156,103 @@ public class BaseClass extends Configurations
 				db.closeConnection();
 			}
 		}
+	}
+	
+	
+	protected static void getURL(String uRL, boolean waitForPageToLoad)
+	{
+		driver().get(uRL);
+		
+		if(waitForPageToLoad)
+		{
+			waitForPageToLoad();
+		}
+	}
+	
+	
+	protected static void waitForPageToLoad()
+	{
+		ExpectedCondition<Boolean>		pageLoadCondition;
+		Wait<WebDriver>					wait;
+		
+		pageLoadCondition			= 	new ExpectedCondition<Boolean>()
+										{
+											@Override
+											public Boolean apply(WebDriver driver)
+											{
+												return ((JavascriptExecutor)driver)
+														.executeScript("return document.readyState")
+														.equals("complete");
+											}
+										};
+										
+		wait						= 	new FluentWait<WebDriver>(driver())
+											.withTimeout(Duration.ofSeconds(30))
+											.pollingEvery(Duration.ofSeconds(1));
+		
+		wait.until(pageLoadCondition);
+	}
+	
+	
+	protected static boolean elementExists(By by)
+	{
+		try
+		{
+			driver().findElement(by);
+			return true;
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+	}
+	
+	
+	protected static void inspectElement(WebElement element)
+	{
+		String							script		= 	"var items = {}; \r\n" +
+														"for (index = 0; index < arguments[0].attributes.length; ++index)\r\n" +
+														"{ \r\n" +
+														"items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value\r\n" +
+														"}; \r\n" +
+														"return items;";
+		JavascriptExecutor 				executor	= 	(JavascriptExecutor) driver();
+		Object							mapObj		= 	executor.executeScript(script, element);
+		
+		
+		
+		//	Option 1 - a simple way to just print the results
+		System.out.println(" ");
+		System.out.println("tag = " + element.getTagName());
+		System.out.println("---------------------------------------");
+		System.out.println(mapObj.toString().replace("{", "").replace("}", "").replace("=", " = ").replace(", ", "\r\n"));
+		System.out.println("---------------------------------------");
+		if(!element.getText().equals(null) && !element.getText().isEmpty())
+		{
+			System.out.println("text = " + element.getText().trim());
+			System.out.println("---------------------------------------");
+		}
+		System.out.println("width  = " + element.getSize().getWidth());
+		System.out.println("height = " + element.getSize().getHeight());
+		System.out.println("---------------------------------------");
+		System.out.println("X = " + element.getLocation().getX());
+		System.out.println("Y = " + element.getLocation().getY());
+		System.out.println(" ");
+		
+		
+		
+		//	Options 2 - if you'd rather return a Map<String, String>
+//		ObjectMapper 					oMapper 	= 	new ObjectMapper();
+//		Map<String, String> 			map			= 	oMapper.convertValue(mapObj, Map.class);
+//		Iterator<Entry<String, String>>	iterator	= 	map.entrySet().iterator();
+//
+////		while(iterator.hasNext())
+////		{
+////			Entry<String, String> mEntry = iterator.next();
+////			System.out.println(mEntry.getKey() + " = " + mEntry.getValue());
+////		}
+//
+//		return map;
 	}
 
 
