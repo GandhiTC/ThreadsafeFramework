@@ -7,10 +7,10 @@ public class Configurations
 	private 	static 	final 	ConfigReader	readconfig			= new ConfigReader();
 	
 	//	The following 3 values are now retrieved from a MySQL database
-	//	Refer to getCredentials() method in BaseClass.java
-	protected	static 	final 	String			baseURL				= readconfig.getApplicationURL();
-	protected 	static 	final 	String			username			= readconfig.getUsername();
-	protected	static 	final 	String			password			= readconfig.getPassword();
+	//	Refer to getCredentialsFromDatabase() method in BaseClass.java
+//	protected	static 	final 	String			baseURL				= readconfig.getApplicationURL();
+//	protected 	static 	final 	String			username			= readconfig.getUsername();
+//	protected	static 	final 	String			password			= readconfig.getPassword();
 	
 	protected 	static 	final 	String			firefoxPath			= readconfig.getFirefoxPath();
 	protected 	static 	final 	String			iePath				= readconfig.getIEPath();

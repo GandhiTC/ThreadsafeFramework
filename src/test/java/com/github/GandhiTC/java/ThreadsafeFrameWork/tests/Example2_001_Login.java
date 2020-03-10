@@ -12,7 +12,7 @@ import com.github.GandhiTC.java.ThreadsafeFrameWork.pageObjects.LoginPage;
 
 
 
-public class Example2_001_Login extends BaseClass2
+public class Example2_001_Login extends BaseClass
 {
 	@Test
 	public void loginTest(ITestContext context) throws IOException, AWTException, InterruptedException

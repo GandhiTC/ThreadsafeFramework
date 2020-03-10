@@ -6,6 +6,14 @@ Two simple example tests are supplied, to show the framework in action.
 I've tried to keep the project as simple as possible while still adding as many features as possible 
 so that others can use it to learn from.
 
+NOTE:	In example 2, the test logs into a MySQL database to retrieve the URL, username, & password.
+		This is done purely to show an example at work, it is not recommended in production.
+		Instead, look into saving sensitive values into environment variables.
+
+NOTE:	I've added a custom filter for the loggers used in this project.
+		If you log an error where the message is "^^", it will add a blank line to the logs.
+		ie:  logger.error("^^");
+
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------
@@ -16,10 +24,7 @@ Base features include:
 	- A JDBC/MySQL driver included
 	- Implements Page Object Model
 	- Separate trace and error logs via Log4j (v2)
-		- NOTE:  I've added a custom filter for the loggers used in this project
-			 If you log an error where the message is "^^", it will add a blank line to the logs.
-			 ie:  logger.error("^^");
-	- Screenshots of browser on test failure
+	- Screenshots of browser window on test failure
 	- HTML reports that are easier to read and more visually appealing via ExtentReports (v4)
 		- Includes easy one-click access to screenshots for failed tests
 		- Includes expandable/collapsable stack trace error message 
