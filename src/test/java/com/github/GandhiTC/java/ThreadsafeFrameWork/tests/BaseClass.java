@@ -14,7 +14,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -34,15 +36,16 @@ import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.DriverManager;
 
 public class BaseClass extends Configurations
 {
-	private		static			ThreadLocal<Object>	threadedDriver	= new ThreadLocal<>();
-	private		static			DriverManager		driverManager	= new DriverManager();
-	private 	static			boolean				isRemote		= false;
-	private 	static			boolean				isHeadless		= false;
-	protected	static 			Logger				logger;
-	protected 	static 	final 	JDBCDriver 			db 				= JDBCDriver.INSTANCE;
-	protected	static 			String				baseURL			= "";
-	protected 	static 		 	String				username		= "";
-	protected	static 		 	String				password		= "";
+	private		static			ThreadLocal<Object>		threadedDriver	= new ThreadLocal<>();
+	private		static			DriverManager			driverManager	= new DriverManager();
+	private 	static			boolean					isRemote		= false;
+	private 	static			boolean					isHeadless		= false;
+	protected	static 			Logger					logger;
+	private		static			ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
+	private 	static 	final 	JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
+	protected	static 			String					baseURL			= "";
+	protected 	static 		 	String					username		= "";
+	protected	static 		 	String					password		= "";
 
 
 	@BeforeTest
@@ -50,9 +53,11 @@ public class BaseClass extends Configurations
 	public static void setup(String browser, String runHeadless, String runService, String isGridTest, ITestContext testContext) throws MalformedURLException
 	{
 		setupLogging();
+		
+		threadedDB.set(dbInstance);
 		getCredentials();
 		
-		isRemote 	= isGridTest.equalsIgnoreCase("true") ? true : false;
+		isRemote 	=  isGridTest.equalsIgnoreCase("true") ? true : false;
 		isHeadless 	= runHeadless.equalsIgnoreCase("true") ? true : false;
 		
 		threadedDriver.set(driverManager.selectedWebDriver(browser, runHeadless, runService, isGridTest));
@@ -74,7 +79,7 @@ public class BaseClass extends Configurations
 	@AfterTest
 	public static void tearDown()
 	{
-		db.closeConnection();
+		db().closeConnection();
 		
 		if(driver() != null)
 		{
@@ -96,6 +101,12 @@ public class BaseClass extends Configurations
 		//	disabling specific loggers must come after initializing log4j logger
 		java.util.logging.Logger.getLogger("org.openqa.selenium.remote").setLevel(Level.OFF);
 	}
+	
+	
+	protected static JDBCDriver db()
+	{
+		return threadedDB.get();
+	}
 
 
 	protected static WebDriver driver()
@@ -111,7 +122,7 @@ public class BaseClass extends Configurations
 	}
 	
 	
-	protected static Logger logger()
+	public static Logger logger()
 	{
 		if(logger == null)
 		{
@@ -129,15 +140,15 @@ public class BaseClass extends Configurations
 			try
 			{
 				//	Check if "pomCredentials" exists in the database.  If it does not, add it.
-				if(!db.checkIfTableExists("pomCredentials"))
+				if(!db().checkIfTableExists("pomCredentials"))
 				{
 					System.out.println("\r\nCreating \"pomCredentials\" table in database.\r\n");
 
-					db.parseSqlFile("src/test/resources/InsertTestTable.sql", false, true, false, false);
+					db().parseSqlFile("src/test/resources/InsertTestTable.sql", false, true, false, false);
 				}
 
 
-				ResultSet resultSet = db.query("select * from pomCredentials");
+				ResultSet resultSet = db().query("select * from pomCredentials");
 
 				while (resultSet.next())
 				{
@@ -153,15 +164,71 @@ public class BaseClass extends Configurations
 			}
 			finally
 			{
-				db.closeConnection();
+				db().closeConnection();
 			}
 		}
+	}
+	
+	
+	protected static void setWindowSize(int width, int height)
+	{
+		driver().manage().window().setSize(new Dimension(width, height));
+	}
+	
+	
+	protected static void setWindowPosition(int posX, int posY)
+	{
+		driver().manage().window().setPosition(new Point(posX, posY));
 	}
 	
 	
 	protected static void getURL(String uRL, boolean waitForPageToLoad)
 	{
 		driver().get(uRL);
+		
+		if(waitForPageToLoad)
+		{
+			waitForPageToLoad();
+		}
+	}
+	
+	
+	protected static void navigateURL(String uRL, boolean waitForPageToLoad)
+	{
+		driver().navigate().to(uRL);
+		
+		if(waitForPageToLoad)
+		{
+			waitForPageToLoad();
+		}
+	}
+	
+	
+	protected static void navigateBack(String uRL, boolean waitForPageToLoad)
+	{
+		driver().navigate().back();
+		
+		if(waitForPageToLoad)
+		{
+			waitForPageToLoad();
+		}
+	}
+	
+	
+	protected static void navigateForward(String uRL, boolean waitForPageToLoad)
+	{
+		driver().navigate().forward();
+		
+		if(waitForPageToLoad)
+		{
+			waitForPageToLoad();
+		}
+	}
+	
+	
+	protected static void navigateRefresh(String uRL, boolean waitForPageToLoad)
+	{
+		driver().navigate().refresh();
 		
 		if(waitForPageToLoad)
 		{
@@ -208,7 +275,7 @@ public class BaseClass extends Configurations
 	}
 	
 	
-	protected static void inspectElement(WebElement element)
+	protected static void getAttributes(WebElement element)
 	{
 		String							script		= 	"var items = {}; \r\n" +
 														"for (index = 0; index < arguments[0].attributes.length; ++index)\r\n" +
@@ -237,6 +304,10 @@ public class BaseClass extends Configurations
 		System.out.println("---------------------------------------");
 		System.out.println("X = " + element.getLocation().getX());
 		System.out.println("Y = " + element.getLocation().getY());
+		System.out.println("---------------------------------------");
+		System.out.println("isDisplayed = " + element.isDisplayed());
+		System.out.println("isEnabled   = " + element.isEnabled());
+		System.out.println("isSelected  = " + element.isSelected());
 		System.out.println(" ");
 		
 		
