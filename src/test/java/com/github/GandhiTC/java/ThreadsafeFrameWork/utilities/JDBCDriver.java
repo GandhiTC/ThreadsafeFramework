@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import org.apache.logging.log4j.Logger;
-import com.github.GandhiTC.java.ThreadsafeFrameWork.tests.BaseClass;
+import com.github.GandhiTC.java.ThreadsafeFrameWork.tests.BaseClass2;
 
 
 
@@ -39,7 +39,7 @@ public enum JDBCDriver
 	
 	JDBCDriver(String propertiesFilePath)
 	{
-		this.logger = BaseClass.logger();
+		this.logger = BaseClass2.logger();
 		
 		Properties props = new Properties();
 		FileInputStream fis;
