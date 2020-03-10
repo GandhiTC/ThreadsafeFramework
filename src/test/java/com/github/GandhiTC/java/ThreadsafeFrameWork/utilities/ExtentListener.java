@@ -230,5 +230,6 @@ public class ExtentListener implements ITestListener, ISuiteListener
 	public void onFinish(ISuite suite)
 	{
 		logger.error("^^");
+		testThread.remove();
 	}
 }
