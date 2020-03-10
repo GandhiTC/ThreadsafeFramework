@@ -12,7 +12,7 @@ import com.github.GandhiTC.java.ThreadsafeFrameWork.pageObjects.LoginPage;
 
 
 
-public class Example2_001_Login extends BaseClass
+public class Example2_001_Login extends BaseClass2
 {
 	@Test
 	public void loginTest(ITestContext context) throws IOException, AWTException, InterruptedException
@@ -31,7 +31,7 @@ public class Example2_001_Login extends BaseClass
 			
 			if(elementExists(by))
 			{
-				inspectElement(driver().findElement(by));
+				getAttributes(driver().findElement(by));
 			}
 			else
 			{
