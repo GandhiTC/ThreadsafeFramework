@@ -17,11 +17,11 @@ public class LoginPage {
 	public LoginPage(WebDriver rdriver)
 	{
 		ldriver = rdriver;
-		PageFactory.initElements(rdriver, this);
+		PageFactory.initElements(ldriver, this);
 	}
 	
 	
-	@FindBy(name="uid")
+	@FindBy(name="uidx")
 	@CacheLookup
 	WebElement txtUserName;
 	

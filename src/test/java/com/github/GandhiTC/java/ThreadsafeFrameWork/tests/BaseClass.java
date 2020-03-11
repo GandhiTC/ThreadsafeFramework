@@ -12,6 +12,7 @@ import org.testng.ITestContext;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
+import org.testng.asserts.SoftAssert;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.JDBCDriver;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.DriverManager;
 
@@ -20,6 +21,7 @@ import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.DriverManager;
 public class BaseClass extends DriverManager
 {
 	protected	static 			Logger					logger;
+	protected	static			SoftAssert				softAssert		= new SoftAssert();
 	private		static			ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
 	private 	static 	final 	JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
 	protected	static 			String					baseURL			= "";

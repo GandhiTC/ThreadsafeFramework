@@ -28,7 +28,7 @@ Base features include:
 	- HTML reports that are easier to read and more visually appealing via ExtentReports (v4)
 		- Includes easy one-click access to screenshots for failed tests
 		- Includes expandable/collapsable stack trace error message 
-	- Loads base test configurations from a .properties file
+	- Loads base test configurations from a .properties file or from a MySQL database
 	- Loads database connection info from a .properties file
 	- Loads test data from an .xlsx file via Apache POI
 
