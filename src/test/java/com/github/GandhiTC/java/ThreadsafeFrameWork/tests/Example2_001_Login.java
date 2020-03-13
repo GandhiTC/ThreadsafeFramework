@@ -26,6 +26,7 @@ public class Example2_001_Login extends BaseClass
 		lp		= new LoginPage(driver());
 		errSet	= new LinkedHashSet<String>();
 		
+		maximizeBrowser();
 		getURL(baseURL, true);
 		
 		

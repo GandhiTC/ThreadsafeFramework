@@ -272,6 +272,12 @@ public class DriverManager extends Configurations
 	
 	
 	
+	protected static void maximizeBrowser()
+	{
+		driver().manage().window().maximize();
+	}
+	
+	
 	protected static void setWindowSize(int width, int height)
 	{
 		driver().manage().window().setSize(new Dimension(width, height));

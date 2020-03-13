@@ -101,9 +101,6 @@ public class ExtentListener implements ITestListener, ISuiteListener
 					
 					ExtentManager.captureScreenshot(webDriverAttribute, screenshotFolderAttribute);
 					
-//					MediaEntityModelProvider provider = MediaEntityBuilder.createScreenCaptureFromPath(ExtentManager.screenshotPath).build();
-//					testThread.get().fail("<b><font color=red>Screenshot : &nbsp;</font></b><br>", provider);
-					
 					MediaEntityModelProvider provider = MediaEntityBuilder.createScreenCaptureFromBase64String(ExtentManager.base64ImageString).build();
 					testThread.get().fail("<font color=red>Click for screenshot : &nbsp;</font>", provider);
 				}

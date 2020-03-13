@@ -9,7 +9,8 @@
 	
 	<parameter name="isGridTest"  value="false" />
 	<parameter name="runHeadless" value="false" />
-	<parameter name="runService"  value="true" />
+	<parameter name="runService"  value="true"  />
+	<parameter name="emailReport" value="false" />
 
 	<test name="Test 1">
 		<parameter name="browser" value="chrome" />
