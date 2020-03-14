@@ -11,4 +11,4 @@ CREATE TABLE `pomCredentials`
 INSERT INTO `pomCredentials`
 	(`baseURL`, `username`, `password`) 
 VALUES 
-	('http://demo.guru99.com/v4/','mngr24721x','AzEgEnu');
+	('http://demo.guru99.com/v4/','mngr250218','vezYgad');

@@ -3,8 +3,6 @@ package com.github.GandhiTC.java.ThreadsafeFrameWork.tests;
 
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-import org.openqa.selenium.NoAlertPresentException;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.DataProvider;
@@ -19,8 +17,8 @@ public class Example2_002_Login extends BaseClass
 	@Test(dataProvider="LoginData")
 	public void loginDDT(String user,String pwd, ITestContext context) throws InterruptedException
 	{
-		driver().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-		driver().get(baseURL);
+		maximizeBrowser();
+		getURL(baseURL, true);
 		
 		LoginPage lp = new LoginPage(driver());
 		
@@ -33,19 +31,18 @@ public class Example2_002_Login extends BaseClass
 		lp.clickSubmit();
 		Thread.sleep(2000);
 		
-		if(isAlertPresent() == true)
+		if(isAlertPresent())
 		{
 			logger.warn("Login failed");
 			
-			driver().switchTo().alert().accept();
-			driver().switchTo().defaultContent();
+			acceptAlert();
 			logger.info("Alert accepted");
 			
 			String errMsg = "Test failed - username: " + user + "  password: " + pwd + "\n";
 			logger.error(errMsg);
 			
-			context.setAttribute("ERRMSG", errMsg);
-			Assert.assertTrue(false);
+			context.setAttribute("Note", errMsg);
+			Assert.fail(errMsg);
 		}
 		else
 		{
@@ -55,26 +52,13 @@ public class Example2_002_Login extends BaseClass
 			logger.info("Logout clicked");
 			Thread.sleep(2000);
 			
-			driver().switchTo().alert().accept();
-			driver().switchTo().defaultContent();
+			acceptAlert();
 			logger.info("Alert accepted");
 			
-			logger.info("Test passed - username: " + user + "  password: " + pwd + "\n");
-			Assert.assertTrue(true);
-		}
-	}
-	
-	
-	public boolean isAlertPresent()
-	{
-		try
-		{
-			driver().switchTo().alert();
-			return true;
-		}
-		catch (NoAlertPresentException e)
-		{
-			return false;
+			String passMsg = "Test passed - username: " + user + "  password: " + pwd + "\n";
+			logger.info(passMsg);
+			
+			context.setAttribute("Note", passMsg);
 		}
 	}
 	
@@ -82,7 +66,7 @@ public class Example2_002_Login extends BaseClass
 	@DataProvider(name="LoginData")
 	String [][] getData() throws IOException
 	{
-		String	path			= System.getProperty("user.dir") + "/src/test/java/com/inetbanking/testData/LoginData.xlsx";
+		String	path			= System.getProperty("user.dir") + "/src/test/java/com/github/GandhiTC/java/ThreadsafeFrameWork/testData/LoginData.xlsx";
 		int		rownum			= XLUtils.getRowCount(path, "Sheet1");
 		int		colcount		= XLUtils.getCellCount(path, "Sheet1", 1);
 		String	logindata[][]	= new String[rownum][colcount];

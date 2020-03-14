@@ -16,6 +16,7 @@ import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -272,6 +273,19 @@ public class DriverManager extends Configurations
 	
 	
 	
+	protected static void threadSleep(long millis)
+	{
+		try
+		{
+			Thread.sleep(millis);
+		}
+		catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	
 	protected static void maximizeBrowser()
 	{
 		driver().manage().window().maximize();
@@ -366,6 +380,43 @@ public class DriverManager extends Configurations
 											.pollingEvery(Duration.ofSeconds(1));
 		
 		wait.until(pageLoadCondition);
+	}
+	
+	
+	protected static boolean isAlertPresent()
+	{
+		try
+		{
+			driver().switchTo().alert();
+			return true;
+		}
+		catch (NoAlertPresentException e)
+		{
+			return false;
+		}
+	}
+	
+	
+	protected static void acceptAlert()
+	{
+		driver().switchTo().alert().accept();
+		driver().switchTo().defaultContent();
+	}
+	
+	
+	protected static void dismissAlert()
+	{
+		driver().switchTo().alert().dismiss();
+		driver().switchTo().defaultContent();
+	}
+	
+	
+	protected static String alertText()
+	{
+		String message = driver().switchTo().alert().getText();
+		driver().switchTo().defaultContent();
+		
+		return message;
 	}
 	
 	

@@ -35,7 +35,7 @@ public class ExtentManager
 									"  color: white;\r\n" +
 									"  padding: 2px 6px;\r\n" +
 									"  width: 18em;\r\n" +
-									"  background-color: FireBrick;\r\n" +
+									"  background-color: DarkRed;\r\n" +
 									"  border: none;\r\n" +
 									"  box-shadow: 3px 3px 4px black;\r\n" +
 									"  cursor: pointer;\r\n" +
@@ -47,10 +47,11 @@ public class ExtentManager
 									"\r\n" +
 									"details > p {\r\n" +
 									"  border-radius: 0 0 10px 10px;\r\n" +
-									"  background-color: Salmon;\r\n" +
+									"  background-color: LightSlateGray;\r\n" +
 									"  padding: 2px 6px;\r\n" +
 									"  margin: 0;\r\n" +
 									"  box-shadow: 3px 3px 4px black;\r\n" +
+									"  font-weight: bold;" +
 									"}\r\n" +
 									"\r\n" +
 									".tabbed {\r\n" +
@@ -80,7 +81,7 @@ public class ExtentManager
 		ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter(filePath);
 		htmlReporter.config().setEncoding("utf-8");
 		htmlReporter.config().setCSS(css);
-		htmlReporter.config().setTheme(Theme.STANDARD);
+		htmlReporter.config().setTheme(Theme.DARK);
 		htmlReporter.config().setDocumentTitle(reportHeader);
 		htmlReporter.config().setReportName(reportHeader);
 		
@@ -99,7 +100,7 @@ public class ExtentManager
 	}
 
 
-	public static void captureScreenshot(WebDriver driver, String screenshotsFolder)
+	public static void captureScreenshot(WebDriver driver)
 	{
 		TakesScreenshot		ts					= (TakesScreenshot)driver;
 							base64ImageString	= "data:image/png;base64," + ts.getScreenshotAs(OutputType.BASE64);

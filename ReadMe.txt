@@ -30,7 +30,7 @@ Base features include:
 		- Uses Base64 imaging to embed screenshots directly into report files
 	- HTML reports that are easier to read and more visually appealing via ExtentReports (v4)
 		- Includes easy one-click access to screenshots for failed tests
-		- Includes expandable/collapsable stack trace error message 
+		- Includes expandable/collapsible stack trace error message 
 	- Includes an example of loading test data from an .xlsx file via Apache POI DataProvider
 	- Includes examples of loading configuration and/or test properties via
 		- Properties file
@@ -64,10 +64,9 @@ Edit parameters in your .xml TestNG file
 
 Edit WebDriver options in: ./src/test/java/com/github/GandhiTC/java/ThreadSafeFrameWork/utilities/DriverManager
 
-Run Example1_TestNG.xml as TestNG Suite to see a quick and easy example
+Run Example1_TestNG.xml as TestNG Suite to see a quick and easy example of threading at work
 
-Run Example2_TestNG.xml as TestNG Suite to see an example that implements all of the features (except Apache POI DataProvider)
-	- NOTE:  I've set this file to run only 1 test, you can uncomment a couple of lines if you want to see the 2 other tests in action
+Run Example2_TestNG.xml as TestNG Suite to see an example that implements all features
 
 
 

@@ -21,7 +21,7 @@ public class LoginPage {
 	}
 	
 	
-	@FindBy(name="uidx")
+	@FindBy(name="uid")
 	@CacheLookup
 	WebElement txtUserName;
 	

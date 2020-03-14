@@ -31,10 +31,16 @@ public class ExtentListener implements ITestListener, ISuiteListener
 	
 	private static	Logger					logger;
 	private static	ITestContext			staticContext;
+	
 	private static	String					lastSkipped		= "";
 	private			String					logText			= "";
 	private			String					methodName		= "";
 	private			Markup					markup;
+	
+	public	static	String					bodyText		= "";
+	private	static	int						passNum			= 0,
+											failNum			= 0,
+											skipNum			= 0;
 	
 	
 	@Override
@@ -60,6 +66,12 @@ public class ExtentListener implements ITestListener, ISuiteListener
 		logText		= "<b>TEST CASE PASSED : " + methodName + "</b>";
 		markup		= MarkupHelper.createLabel(logText, ExtentColor.GREEN);
 		
+		//	short message from custom attribute
+		if(result.getTestContext().getAttribute("Note") != null)
+		{
+			testThread.get().pass(result.getTestContext().getAttribute("Note").toString());
+		}
+		
 		testThread.get().pass(markup);
 	}
 
@@ -77,9 +89,9 @@ public class ExtentListener implements ITestListener, ISuiteListener
 
 
 		//	short error message from custom attribute
-		if(testContext.getAttribute("ERRMSG") != null)
+		if(testContext.getAttribute("Note") != null)
 		{
-			testThread.get().fail(testContext.getAttribute("ERRMSG").toString());
+			testThread.get().fail(testContext.getAttribute("Note").toString());
 		}
 
 
@@ -97,9 +109,8 @@ public class ExtentListener implements ITestListener, ISuiteListener
 				try
 				{
 					WebDriver	webDriverAttribute			= (WebDriver)result.getTestContext().getAttribute("WebDriver");
-					String		screenshotFolderAttribute	= (String)result.getTestContext().getAttribute("ScreenshotFolder");
 					
-					ExtentManager.captureScreenshot(webDriverAttribute, screenshotFolderAttribute);
+					ExtentManager.captureScreenshot(webDriverAttribute);
 					
 					MediaEntityModelProvider provider = MediaEntityBuilder.createScreenCaptureFromBase64String(ExtentManager.base64ImageString).build();
 					testThread.get().fail("<font color=red>Click for screenshot : &nbsp;</font>", provider);
@@ -214,6 +225,16 @@ public class ExtentListener implements ITestListener, ISuiteListener
 		{
 			report.flush();
 		}
+		
+		
+		//	The following code makes more sense to be ran in ISuiteListener's onFinish() method
+		//	but because we would not be able to pass resulting values to the report email
+		//	we update the values at the end of each test instead.
+		passNum		+= context.getPassedTests().getAllResults().size();
+		failNum		+= context.getFailedTests().getAllResults().size();
+		skipNum		+= context.getSkippedTests().getAllResults().size();
+		
+		bodyText = "Pass: " + passNum + "\r\n" + "Fail: " + failNum + "\r\n" + "Skip: " + skipNum + "\r\n";
 	}
 
 

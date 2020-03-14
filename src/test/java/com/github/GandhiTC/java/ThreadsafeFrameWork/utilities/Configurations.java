@@ -18,5 +18,4 @@ public class Configurations
 	protected 	static 	final 	String			edgePath			= readconfig.getEdgePath();
 	protected 	static 	final 	String			logsFolder			= readconfig.getLogsFolder();
 	protected 	static 	final 	String			reportsFolder		= readconfig.getReportsFolder();
-	protected 	static 	final 	String			screenshotsFolder	= readconfig.getScreenshotsFolder();
 }

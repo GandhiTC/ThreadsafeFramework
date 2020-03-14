@@ -30,15 +30,16 @@ import org.testng.annotations.Parameters;
 import org.testng.asserts.SoftAssert;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.JDBCDriver;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.DriverManager;
+import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.ExtentListener;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.ExtentManager;
 
 
 
 public class BaseClass extends DriverManager
 {
+	private 	static 	final 	JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
 	private		static			boolean					sendEmail		= false;
 	private		static			ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
-	private 	static 	final 	JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
 	protected	static			SoftAssert				softAssert		= new SoftAssert();
 	protected	static 			String					baseURL			= "";
 	protected 	static 		 	String					username		= "";
@@ -60,7 +61,6 @@ public class BaseClass extends DriverManager
 		setupDriver(browser, runHeadless, runService, isGridTest);
 		testContext.setAttribute("BaseLogger", logger);
 		testContext.setAttribute("WebDriver", driver());
-		testContext.setAttribute("ScreenshotFolder", screenshotsFolder);
 		testContext.setAttribute("RunningHeadless", false);
 		
 		if(runHeadless.equalsIgnoreCase("true"))
@@ -82,7 +82,7 @@ public class BaseClass extends DriverManager
 		{
 			driver().quit();
 		}
-		
+
 		removeDriver();
 	}
 	
@@ -116,7 +116,7 @@ public class BaseClass extends DriverManager
 			String	toEmail			= System.getenv("TestEmailTo");
 			String	emailPassword	= System.getenv("TestEmailPassword");
 	
-			sendHTMLReportByGmail(fromEmail, emailPassword, toEmail, "Test Report", "Email body text.");
+			sendHTMLReportByGmail(fromEmail, emailPassword, toEmail, "Test Report", ExtentListener.bodyText);
 		}
 	}
 	

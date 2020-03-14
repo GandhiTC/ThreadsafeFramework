@@ -2,9 +2,6 @@ package com.github.GandhiTC.java.ThreadsafeFrameWork.tests;
 
 
 
-import java.awt.AWTException;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
@@ -16,10 +13,10 @@ import com.github.GandhiTC.java.ThreadsafeFrameWork.pageObjects.LoginPage;
 public class Example2_003_AddCustomer extends BaseClass
 {
 	@Test
-	public void addNewCustomer(ITestContext context) throws InterruptedException, IOException, AWTException
+	public void addNewCustomer(ITestContext context)
 	{
-		driver().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-		driver().get(baseURL);
+		maximizeBrowser();
+		getURL(baseURL, true);
 		
 		LoginPage		lp		= new LoginPage(driver());
 		AddCustomerPage	addcust	= new AddCustomerPage(driver());
@@ -35,17 +32,17 @@ public class Example2_003_AddCustomer extends BaseClass
 		
 		lp.clickSubmit();
 		logger.info("Submit button clicked");
-		Thread.sleep(1500);
+		
+		threadSleep(1500L);
 		
 		//	adding customer
 		errMsg	= "Error while adding customer";
-		logger.info("providing customer details....");
+		logger.info("providing customer details");
 		addcust.clickAddNewCustomer();
-		addcust.custName("Pavan");
+		addcust.custName("New Customer");
 		addcust.custgender("male");
-		addcust.custdob("10","15","1985");
-		Thread.sleep(1500);
-		addcust.custaddress("INDIA");
+		addcust.custdob("01", "02", "1903");
+		addcust.custaddress("123 Lullaby Lane");
 		addcust.custcity("HYD");
 		addcust.custstate("AP");
 		addcust.custpinno("5000074");
@@ -53,22 +50,33 @@ public class Example2_003_AddCustomer extends BaseClass
 		addcust.custemailid(randomString(8) + "@gmail.com");
 		addcust.custpassword("abcdef");
 		addcust.custsubmit();
-		Thread.sleep(3000);
 		
 		//	validating
-		errMsg	= "Error while validating";
-		logger.info("validation started....");
-		if(driver().getPageSource().contains("Customer Registered Successfully!!!"))
+		logger.info("validation started");
+		
+		if(isAlertPresent())
 		{
-			logger.info("test case passed....");
-			Assert.assertTrue(true);
-			
+			if(alertText().equalsIgnoreCase("please fill all fields"))
+			{
+				acceptAlert();
+				errMsg	= "Error in filling form";
+				context.setAttribute("Note", errMsg);
+				logger.error("test case failed");
+				Assert.fail(errMsg);
+			}
 		}
-		else
+		
+		threadSleep(1500L);
+		
+		if(!driver().getPageSource().contains("Customer Registered Successfully"))
 		{
-			context.setAttribute("ERRMSG", errMsg);
-			logger.info("test case failed....");
-			Assert.assertTrue(false);
+			errMsg	= "Error in validation";
+			context.setAttribute("Note", errMsg);
+			logger.error("test case failed");
+			Assert.fail(errMsg);
 		}
+		
+		logger.info("test case passed");
+		Assert.assertTrue(true);
 	}
 }

@@ -94,7 +94,7 @@ public class Example2_001_Login extends BaseClass
 		//	apply soft assertions or pass
 		if(!errSet.isEmpty())
 		{
-			context.setAttribute("ERRMSG", errSet);
+			context.setAttribute("Note", errSet);
 			logger.error("Login test failed : " + errSet);
 			softAssert.assertAll();
 		}

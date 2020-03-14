@@ -95,10 +95,4 @@ class ConfigReader
 	{
 		return valueInQuotes("reportsFolder");
 	}
-	
-	
-	String getScreenshotsFolder()
-	{
-		return valueInQuotes("screenshotsFolder");
-	}
 }

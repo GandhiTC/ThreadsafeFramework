@@ -10,14 +10,26 @@
 	<parameter name="isGridTest"  value="false" />
 	<parameter name="runHeadless" value="false" />
 	<parameter name="runService"  value="true"  />
-	<parameter name="emailReport" value="false" />
+	<parameter name="emailReport" value="true"  />
 
 	<test name="Test 1">
-		<parameter name="browser" value="chrome" />
+		<parameter name="browser" value="edge" />
 		<classes>
 			<class name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests.Example2_001_Login" />
-			<!-- <class name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests.Example2_002_Login" /> -->
-			<!-- <class name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests.Example2_003_AddCustomer" /> -->
+		</classes>
+	</test>
+	
+	<test name="Test 2">
+		<parameter name="browser" value="firefox" />
+		<classes>
+			<class name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests.Example2_002_Login" />
+		</classes>
+	</test>
+	
+	<test name="Test 3">
+		<parameter name="browser" value="chrome" />
+		<classes>
+			<class name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests.Example2_003_AddCustomer" />
 		</classes>
 	</test>
 </suite>
