@@ -6,7 +6,7 @@
 
 
 	<Properties>
-		<Property name="BASE_PATH">$${sys:logsFolder}/$${date:yyyy}/$${date:MMM}/$${date:dd-MMM-yyyy}</Property>
+		<Property name="BASE_PATH">$${sys:logsFolder}/$${date:yyyy-MM}/$${date:dd}</Property>
 		<Property name="LOG_PATTERN">%d{MMM-dd-yyyy  hh:mm:ss.SSS a zzz (Z)}      [%t]      %-5level      %logger{36}      (%F:%05L)      %msg%n</Property>
 		<Property name="FILE_PATTERN">%d{dd-MMM-yyyy}__%03i</Property>
 	</Properties>

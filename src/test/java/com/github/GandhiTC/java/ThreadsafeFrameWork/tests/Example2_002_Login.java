@@ -17,7 +17,7 @@ public class Example2_002_Login extends BaseClass
 	@Test(dataProvider="LoginData")
 	public void loginDDT(String user,String pwd, ITestContext context) throws InterruptedException
 	{
-		maximizeBrowser();
+		maximizeWindow();
 		getURL(baseURL, true);
 		
 		LoginPage lp = new LoginPage(driver());
@@ -29,10 +29,13 @@ public class Example2_002_Login extends BaseClass
 		logger.info("password provided");
 		
 		lp.clickSubmit();
-		Thread.sleep(2000);
+
+		waitForAlert(5, false);
 		
-		if(isAlertPresent())
+		if(alertIsPresent())
 		{
+			String alertText = alertText();
+			
 			logger.warn("Login failed");
 			
 			acceptAlert();
@@ -42,7 +45,8 @@ public class Example2_002_Login extends BaseClass
 			logger.error(errMsg);
 			
 			context.setAttribute("Note", errMsg);
-			Assert.fail(errMsg);
+			
+			Assert.fail(alertText);
 		}
 		else
 		{
@@ -50,7 +54,8 @@ public class Example2_002_Login extends BaseClass
 			
 			lp.clickLogout();
 			logger.info("Logout clicked");
-			Thread.sleep(2000);
+
+			waitForAlert(5, true);
 			
 			acceptAlert();
 			logger.info("Alert accepted");

@@ -35,10 +35,11 @@ import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.ExtentManager;
 
 
 
-public class BaseClass extends DriverManager
+public abstract class BaseClass extends DriverManager
 {
 	private 	static 	final 	JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
 	private		static			boolean					sendEmail		= false;
+	private		static			boolean					isService		= false;
 	private		static			ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
 	protected	static			SoftAssert				softAssert		= new SoftAssert();
 	protected	static 			String					baseURL			= "";
@@ -51,19 +52,20 @@ public class BaseClass extends DriverManager
 	@Parameters(value = {"browser", "runHeadless", "runService", "isGridTest", "emailReport"})
 	protected static void setup(String browser, String runHeadless, String runService, String isGridTest, String emailReport, ITestContext testContext)
 	{
-		sendEmail = emailReport.equalsIgnoreCase("true") ? true : false;
+		sendEmail = Boolean.valueOf(emailReport);
+		isService = Boolean.valueOf(runService);
 		
 		setupLogging();
 		
 		threadedDB.set(dbInstance);
 		getCredentialsFromDatabase();
 		
-		setupDriver(browser, runHeadless, runService, isGridTest);
+		setupDriver(browser, Boolean.valueOf(runHeadless), Boolean.valueOf(runService), Boolean.valueOf(isGridTest));
 		testContext.setAttribute("BaseLogger", logger);
 		testContext.setAttribute("WebDriver", driver());
 		testContext.setAttribute("RunningHeadless", false);
 		
-		if(runHeadless.equalsIgnoreCase("true"))
+		if(Boolean.valueOf(runHeadless))
 		{
 			if((browser.equalsIgnoreCase("firefox")) || (browser.equalsIgnoreCase("chrome")))
 			{
@@ -82,14 +84,20 @@ public class BaseClass extends DriverManager
 		{
 			driver().quit();
 		}
-
-		removeDriver();
 	}
 	
 	
 	@AfterSuite
 	protected static void tearDownSuite()
 	{
+		if(isService)
+		{
+			stopService();
+		}
+
+		removeDriver();
+		
+		
 		/*
 		 * Assumes you have created the following system environment variables.
 		 *  - TestEmailFrom
@@ -162,11 +170,15 @@ public class BaseClass extends DriverManager
 				{
 					System.out.println("\r\nCreating \"pomCredentials\" table in database.\r\n");
 
-					db().parseSqlFile("src/test/resources/InsertTestTable.sql", false, true, false, false);
+					db().parseSqlFile("src/test/resources/InsertCredsTable.sql", false, true, false, false);
 				}
 
 
-				ResultSet resultSet = db().query("select * from pomCredentials");
+				ResultSet resultSet = db().query("select * from pomCredentials LIMIT 1");
+				//	LIMIT 1 gets first row only
+				//	LIMIT 1, 1 gets second row only
+				//	Limit 3, 1 gets 4th row only
+				//	select * from tableName ORDER BY columnName DESC LIMIT 2, 1 gets 3rd from last row only
 
 				while (resultSet.next())
 				{

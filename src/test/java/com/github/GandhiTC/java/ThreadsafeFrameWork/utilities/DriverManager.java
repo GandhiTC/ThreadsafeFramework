@@ -3,14 +3,21 @@ package com.github.GandhiTC.java.ThreadsafeFrameWork.utilities;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
-//import java.util.Iterator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-//import java.util.Map.Entry;
+import java.util.Map.Entry;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Dimension;
@@ -18,6 +25,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.Point;
+import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -34,24 +42,31 @@ import org.openqa.selenium.firefox.GeckoDriverService;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.ie.InternetExplorerDriverService;
 import org.openqa.selenium.ie.InternetExplorerOptions;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.LocalFileDetector;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 
 
-public class DriverManager extends Configurations
+public abstract class DriverManager extends Configurations
 {
-	private 	static 			Capabilities 			capabilities;
-	private		static			ThreadLocal<Object>		threadedDriver	= new ThreadLocal<>();
-	private 	static			boolean					isRemote		= false;
+	private 	static 			Capabilities 					capabilities;
+	private		static			ThreadLocal<Object>				threadedDriver		= new ThreadLocal<>();
+	private 	static			boolean							isRemote			= false;
+	private		static			GeckoDriverService				geckoDriverService	= null;
+	private		static			InternetExplorerDriverService	ieDriverService		= null;
+	private		static			EdgeDriverService 				edgeDriverService	= null;
+	private		static			ChromeDriverService 			cdService			= null;
 	
 	
-	protected static void setupDriver(String browser, String runHeadless, String runService, String isGridTest)
+	protected static void setupDriver(String browser, boolean runHeadless, boolean runService, boolean isGridTest)
 	{
-		isRemote 	=  isGridTest.equalsIgnoreCase("true") ? true : false;
+		isRemote	=	Boolean.valueOf(isGridTest);
 		
 		try
 		{
@@ -72,7 +87,7 @@ public class DriverManager extends Configurations
 
 	protected static WebDriver driver()
 	{
-		if(isRemote == true)
+		if(isRemote)
 		{
 			return (RemoteWebDriver)threadedDriver.get();
 		}
@@ -83,9 +98,45 @@ public class DriverManager extends Configurations
 	}
 	
 	
-	private static Object selectedWebDriver(String browser, String runHeadless, String runService, String isGridTest) throws MalformedURLException
+	protected static void stopService()
 	{
-		if(isGridTest.equalsIgnoreCase("true"))
+		if(geckoDriverService != null)
+		{
+			if(geckoDriverService.isRunning())
+			{
+				geckoDriverService.stop();
+			}
+		}
+		
+		if(ieDriverService != null)
+		{
+			if(ieDriverService.isRunning())
+			{
+				ieDriverService.stop();
+			}
+		}
+		
+		if(edgeDriverService != null)
+		{
+			if(edgeDriverService.isRunning())
+			{
+				edgeDriverService.stop();
+			}
+		}
+		
+		if(cdService != null)
+		{
+			if(cdService.isRunning())
+			{
+				cdService.stop();
+			}
+		}
+	}
+	
+	
+	private static Object selectedWebDriver(String browser, boolean runHeadless, boolean runService, boolean isGridTest) throws MalformedURLException
+	{
+		if(isGridTest)
 		{
 			RemoteWebDriver rwb = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), getCapabilities(browser, runHeadless));
 			rwb.setFileDetector(new LocalFileDetector());
@@ -100,13 +151,30 @@ public class DriverManager extends Configurations
 				System.setProperty("webdriver.gecko.driver", firefoxPath);
 				System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, System.getProperty("java.io.tmpdir") + "geckodriverlogs.txt");
 				
-				if(runService.equalsIgnoreCase("true"))
+				if(runService)
 				{
-					FirefoxBinary 		binary 					= new FirefoxBinary();
-					if(runHeadless.equalsIgnoreCase("true")) { binary.addCommandLineOptions("-headless"); }
-					Map<String, String>	environmentVariables	= new HashMap<>();
-					GeckoDriverService	geckoDriverService		= new GeckoDriverService.Builder().usingFirefoxBinary(binary).withEnvironment(environmentVariables).build();
-					return new FirefoxDriver(geckoDriverService, getFirefoxOptions(runHeadless));
+					if(geckoDriverService == null)
+					{
+						FirefoxBinary 		binary 					= new FirefoxBinary();
+						if(runHeadless) 							  { binary.addCommandLineOptions("-headless"); }
+						Map<String, String>	environmentVariables	= new HashMap<>();
+											geckoDriverService		= new GeckoDriverService.Builder().usingFirefoxBinary(binary).withEnvironment(environmentVariables).build();
+						
+						try
+						{
+							geckoDriverService.start();
+						}
+						catch(IOException e)
+						{
+							e.printStackTrace();
+						}
+						
+						return new FirefoxDriver(geckoDriverService, getFirefoxOptions(runHeadless));
+					}
+					else
+					{
+						return geckoDriverService;
+					}
 				}
 				else
 				{
@@ -118,10 +186,27 @@ public class DriverManager extends Configurations
 			{
 				System.setProperty("webdriver.ie.driver", iePath);
 				
-				if(runService.equalsIgnoreCase("true"))
+				if(runService)
 				{
-					InternetExplorerDriverService	ieDriverService	= new InternetExplorerDriverService.Builder().withSilent(true).build();
-					return new InternetExplorerDriver(ieDriverService, getIeOptions());
+					if(ieDriverService == null)
+					{
+						ieDriverService	= new InternetExplorerDriverService.Builder().withSilent(true).build();
+						
+						try
+						{
+							ieDriverService.start();
+						}
+						catch(IOException e)
+						{
+							e.printStackTrace();
+						}
+						
+						return new InternetExplorerDriver(ieDriverService, getIeOptions());
+					}
+					else
+					{
+						return ieDriverService;
+					}
 				}
 				else
 				{
@@ -133,10 +218,27 @@ public class DriverManager extends Configurations
 			{
 				System.setProperty("webdriver.edge.driver", edgePath);
 				
-				if(runService.equalsIgnoreCase("true"))
+				if(runService)
 				{
-					EdgeDriverService edgeDriverService = new EdgeDriverService.Builder().withLogFile(new File(System.getProperty("java.io.tmpdir") + "edgedriverlogs.txt")).build();
-					return new EdgeDriver(edgeDriverService, getEdgeOptions());
+					if(edgeDriverService == null)
+					{
+						edgeDriverService = new EdgeDriverService.Builder().withLogFile(new File(System.getProperty("java.io.tmpdir") + "edgedriverlogs.txt")).build();
+						
+						try
+						{
+							edgeDriverService.start();
+						}
+						catch(IOException e)
+						{
+							e.printStackTrace();
+						}
+						
+						return new EdgeDriver(edgeDriverService, getEdgeOptions());
+					}
+					else
+					{
+						return edgeDriverService;
+					}
 				}
 				else
 				{
@@ -150,10 +252,27 @@ public class DriverManager extends Configurations
 				System.setProperty("webdriver.chrome.args", "--disable-logging");
 				System.setProperty("webdriver.chrome.silentOutput", "true");
 				
-				if(runService.equalsIgnoreCase("true"))
+				if(runService)
 				{
-					ChromeDriverService cdService = new ChromeDriverService.Builder().usingAnyFreePort().build();
-					return new ChromeDriver(cdService, getChromeOptions(runHeadless));
+					if(cdService == null)
+					{
+						cdService = new ChromeDriverService.Builder().usingAnyFreePort().build();
+						
+						try
+						{
+							cdService.start();
+						}
+						catch(IOException e)
+						{
+							e.printStackTrace();
+						}
+						
+						return new ChromeDriver(cdService, getChromeOptions(runHeadless));
+					}
+					else
+					{
+						return cdService;
+					}
 				}
 				else
 				{
@@ -164,7 +283,7 @@ public class DriverManager extends Configurations
 	}
 
 
-	private static Capabilities getCapabilities(String browser, String runHeadless)
+	private static Capabilities getCapabilities(String browser, boolean runHeadless)
 	{
 		if(browser.equalsIgnoreCase("firefox"))
 		{
@@ -187,7 +306,7 @@ public class DriverManager extends Configurations
 	}
 	
 	
-	private static FirefoxOptions getFirefoxOptions(String runHeadless)
+	private static FirefoxOptions getFirefoxOptions(boolean runHeadless)
 	{
 		FirefoxOptions	options	= new FirefoxOptions();
 		FirefoxProfile	profile	= new FirefoxProfile();
@@ -201,8 +320,9 @@ public class DriverManager extends Configurations
 		
 		//	Set Firefox profile to capabilities
 		options.setCapability(FirefoxDriver.PROFILE, profile);
+		options.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 		
-		if(runHeadless.equalsIgnoreCase("true"))
+		if(runHeadless)
 		{
 			options.setHeadless(true);
 		}
@@ -211,7 +331,7 @@ public class DriverManager extends Configurations
 	}
 
 
-	private static ChromeOptions getChromeOptions(String runHeadless)
+	private static ChromeOptions getChromeOptions(boolean runHeadless)
 	{
 //		http://chromedriver.chromium.org/capabilities
 		
@@ -238,7 +358,7 @@ public class DriverManager extends Configurations
 //		chromeOptions.setCapability("browserVersion", "67");
 //		chromeOptions.setCapability("platformName", "Windows XP");
 		
-		if(runHeadless.equalsIgnoreCase("true"))
+		if(runHeadless)
 		{
 			chromeOptions.setHeadless(true);
 		}
@@ -273,7 +393,7 @@ public class DriverManager extends Configurations
 	
 	
 	
-	protected static void threadSleep(long millis)
+	protected static void sleep(long millis)
 	{
 		try
 		{
@@ -286,9 +406,57 @@ public class DriverManager extends Configurations
 	}
 	
 	
-	protected static void maximizeBrowser()
+	protected static void maximizeWindow()
 	{
 		driver().manage().window().maximize();
+	}
+	
+	
+	protected static void minimizeWindow()
+	{
+		try
+		{
+			((JavascriptExecutor)driver()).executeScript("window.focus();");
+			
+			Robot robot = new Robot();
+			
+			robot.keyPress(KeyEvent.VK_WINDOWS);
+			
+			robot.keyPress(KeyEvent.VK_DOWN);
+			robot.keyRelease(KeyEvent.VK_DOWN);
+			
+			try
+			{
+				Thread.sleep(300L);
+			}
+			catch(InterruptedException e)
+			{
+				System.out.println(e.getMessage());
+			}
+			
+			//	press down arrow twice just in case
+			//	original window state was maximized
+			robot.keyPress(KeyEvent.VK_DOWN);
+			robot.keyRelease(KeyEvent.VK_DOWN);
+			
+			robot.keyRelease(KeyEvent.VK_WINDOWS);
+		}
+		catch(AWTException e)
+		{
+			System.err.println(e.getMessage());
+		}
+	}
+	
+	
+	protected static Dimension getWindowSize()
+	{
+		return driver().manage().window().getSize();
+	}
+	
+	
+	protected static Point getWindowPosition()
+	{
+		return driver().manage().window().getPosition();
 	}
 	
 	
@@ -298,9 +466,80 @@ public class DriverManager extends Configurations
 	}
 	
 	
+	protected static void setWindowSize(Dimension dimension)
+	{
+		driver().manage().window().setSize(dimension);
+	}
+	
+	
 	protected static void setWindowPosition(int posX, int posY)
 	{
 		driver().manage().window().setPosition(new Point(posX, posY));
+	}
+	
+	
+	protected static void setWindowPosition(Point point)
+	{
+		driver().manage().window().setPosition(point);
+	}
+	
+	
+	protected static void bringToFront(boolean defaultDismissAlert)
+	{
+		//	If an alert is already present, capture it's text
+		String alertText = "";
+		
+		try
+		{
+			Alert alert = driver().switchTo().alert();
+			alertText   = alert.getText();
+			
+			if(defaultDismissAlert)
+			{
+				alert.dismiss();
+			}
+			else
+			{
+				alert.accept();
+			}
+		}
+		catch(NoAlertPresentException e)
+		{
+		}
+		
+		String 		origHandle	= driver().getWindowHandle();
+		Dimension 	origSize 	= getWindowSize();
+		Point		origPos		= getWindowPosition();
+		
+		minimizeWindow();
+		
+		try
+		{
+			Thread.sleep(300L);
+		}
+		catch(InterruptedException e)
+		{
+			System.out.println(e.getMessage());
+		}
+		
+		//	Do a little bit of everything to make it more universally compatible
+		maximizeWindow();
+		
+		((JavascriptExecutor) driver()).executeScript("alert('" + alertText + "')");
+		acceptAlert();
+		
+		switchByHandle(origHandle);
+		
+		((JavascriptExecutor) driver()).executeScript("window.focus();");
+		setWindowSize(origSize);
+		setWindowPosition(origPos);
+		
+		//	If an alert was present when we first started
+		//	bring it back up again
+		if(!alertText.isEmpty())
+		{
+			((JavascriptExecutor) driver()).executeScript("alert('" + alertText + "')");
+		}
 	}
 	
 	
@@ -383,7 +622,34 @@ public class DriverManager extends Configurations
 	}
 	
 	
-	protected static boolean isAlertPresent()
+	protected static void waitForAlert(long seconds, boolean okToFail)
+	{
+		if(okToFail)
+		{
+			try
+			{
+				WebDriverWait wait = new WebDriverWait(driver(), seconds);
+				wait.until(ExpectedConditions.alertIsPresent());
+			}
+			catch(NoAlertPresentException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			int t = 0;
+			
+			while(!alertIsPresent() && (t < seconds))
+			{
+				sleep(1000L);
+				t++;
+			}
+		}
+	}
+	
+	
+	protected static boolean alertIsPresent()
 	{
 		try
 		{
@@ -399,24 +665,38 @@ public class DriverManager extends Configurations
 	
 	protected static void acceptAlert()
 	{
-		driver().switchTo().alert().accept();
-		driver().switchTo().defaultContent();
+		try
+		{
+			driver().switchTo().alert().accept();
+		}
+		catch(Exception e)
+		{
+		}
 	}
 	
 	
 	protected static void dismissAlert()
 	{
-		driver().switchTo().alert().dismiss();
-		driver().switchTo().defaultContent();
+		try
+		{
+			driver().switchTo().alert().dismiss();
+		}
+		catch(Exception e)
+		{
+		}
 	}
 	
 	
 	protected static String alertText()
 	{
-		String message = driver().switchTo().alert().getText();
-		driver().switchTo().defaultContent();
-		
-		return message;
+		try
+		{
+			return driver().switchTo().alert().getText();
+		}
+		catch(Exception e)
+		{
+			return null;
+		}
 	}
 	
 	
@@ -442,8 +722,7 @@ public class DriverManager extends Configurations
 														"items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value\r\n" +
 														"}; \r\n" +
 														"return items;";
-		JavascriptExecutor 				executor	= 	(JavascriptExecutor) driver();
-		Object							mapObj		= 	executor.executeScript(script, element);
+		Object							mapObj		= 	((JavascriptExecutor)driver()).executeScript(script, element);
 		
 		
 		
@@ -470,7 +749,7 @@ public class DriverManager extends Configurations
 	}
 	
 	
-	protected static Map<String, String> getAttributesMap(WebElement element)
+	protected static Map<String, String> getAttributesMap(WebElement element, boolean printToConsole)
 	{
 		String							script		= 	"var items = {}; \r\n" +
 														"for (index = 0; index < arguments[0].attributes.length; ++index)\r\n" +
@@ -478,8 +757,7 @@ public class DriverManager extends Configurations
 														"items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value\r\n" +
 														"}; \r\n" +
 														"return items;";
-		JavascriptExecutor 				executor	= 	(JavascriptExecutor) driver();
-		Object							mapObj		= 	executor.executeScript(script, element);
+		Object							mapObj		= 	((JavascriptExecutor)driver()).executeScript(script, element);
 		ObjectMapper 					oMapper 	= 	new ObjectMapper();
 		@SuppressWarnings("unchecked")
 		Map<String, String> 			map			= 	oMapper.convertValue(mapObj, Map.class);
@@ -499,20 +777,36 @@ public class DriverManager extends Configurations
 		}
 		
 		
-//		Iterator<Entry<String, String>>	iterator	= 	map.entrySet().iterator();
-//
-//		System.out.println(" ");
-//
-//		while(iterator.hasNext())
-//		{
-//			Entry<String, String> mEntry = iterator.next();
-//			System.out.println(mEntry.getKey() + " = " + mEntry.getValue());
-//		}
-//
-//		System.out.println(" ");
+		if(printToConsole)
+		{
+			System.out.println(" ");
+			
+			Iterator<Entry<String, String>>	iterator	= 	map.entrySet().iterator();
+	
+			while(iterator.hasNext())
+			{
+				Entry<String, String> mEntry = iterator.next();
+				System.out.println(mEntry.getKey() + " = " + mEntry.getValue());
+			}
+	
+			System.out.println(" ");
+		}
 
 		
 		return map;
+	}
+	
+	
+	protected static void setAttribute(WebElement element, String attributeName, String attributeValue)
+	{
+		((JavascriptExecutor)driver()).executeScript("arguments[0].setAttribute(arguments[1], arguments[2]);",
+														element, attributeName, attributeValue);
+	}
+	
+	
+	protected static String userAgentInfo()
+	{
+		return ((JavascriptExecutor)driver()).executeScript("return navigator.userAgent;").toString();
 	}
 	
 	
@@ -528,27 +822,133 @@ public class DriverManager extends Configurations
 	}
 	
 	
-	protected static void openNewTab()
+	protected static void openNewTab(boolean switchToNewTab)
 	{
-		WebElement body = driver().findElement(By.tagName("body"));
-		body.sendKeys(Keys.CONTROL + "t");
+		bringToFront(true);
+		
+		String			origHandle	= driver().getWindowHandle();
+		
+		try
+		{
+			Robot 		robot 		= new Robot();
+			
+			robot.keyPress(KeyEvent.VK_CONTROL);
+			robot.keyPress(KeyEvent.VK_N);
+			
+			robot.keyRelease(KeyEvent.VK_N);
+			robot.keyRelease(KeyEvent.VK_CONTROL);
+		}
+		catch(AWTException e)
+		{
+			System.err.println(e.getMessage());
+			return;
+		}
+		
+		//	convert Set<String> to List<String>
+		List<String> 	handles 	= new ArrayList<>(driver().getWindowHandles());
+		String			lastHandle	= handles.get(handles.size() - 1);
+		
+		if(switchToNewTab)
+		{
+			switchByHandle(lastHandle);
+		}
+		else
+		{
+			switchByHandle(origHandle);
+		}
 	}
 	
 	
-	protected static void openNewWindow()
+	protected static void openInNewTab(WebElement linkElement, boolean switchToNewTab)
 	{
-		WebElement body = driver().findElement(By.tagName("body"));
-		body.sendKeys(Keys.CONTROL + "n");
+		bringToFront(true);
+		
+		String			origHandle	= driver().getWindowHandle();
+		
+		linkElement.sendKeys(Keys.chord(Keys.CONTROL, Keys.RETURN));
+		
+		//	convert Set<String> to List<String>
+		List<String> 	handles 	= new ArrayList<>(driver().getWindowHandles());
+		String			lastHandle	= handles.get(handles.size() - 1);
+		
+		if(switchToNewTab)
+		{
+			switchByHandle(lastHandle);
+		}
+		else
+		{
+			switchByHandle(origHandle);
+		}
 	}
 	
 	
-	protected static void switchbyNameOrHandle(String nameOrHandle)
+	protected static void openNewWindow(boolean switchToNewWindow)
+	{
+		bringToFront(true);
+		
+		String			origHandle	= driver().getWindowHandle();
+		
+		try
+		{
+			Robot 		robot 		= new Robot();
+			
+			robot.keyPress(KeyEvent.VK_CONTROL);
+			robot.keyPress(KeyEvent.VK_N);
+			
+			robot.keyRelease(KeyEvent.VK_N);
+			robot.keyRelease(KeyEvent.VK_CONTROL);
+		}
+		catch(AWTException e)
+		{
+			System.err.println(e.getMessage());
+			return;
+		}
+		
+		//	convert Set<String> to List<String>
+		List<String> 	handles 	= new ArrayList<>(driver().getWindowHandles());
+		String			lastHandle	= handles.get(handles.size() - 1);
+		
+		if(switchToNewWindow)
+		{
+			switchByHandle(lastHandle);
+		}
+		else
+		{
+			switchByHandle(origHandle);
+		}
+	}
+	
+	
+	protected static void openInNewWindow(WebElement linkElement, boolean switchToNewWindow)
+	{
+		bringToFront(true);
+		
+		String			origHandle	= driver().getWindowHandle();
+		
+		linkElement.sendKeys(Keys.chord(Keys.SHIFT, Keys.RETURN));
+		
+		//	convert Set<String> to List<String>
+		List<String> 	handles 	= new ArrayList<>(driver().getWindowHandles());
+		String			lastHandle	= handles.get(handles.size() - 1);
+		
+		if(switchToNewWindow)
+		{
+			switchByHandle(lastHandle);
+		}
+		else
+		{
+			switchByHandle(origHandle);
+		}
+	}
+	
+	
+	protected static void switchByHandle(String nameOrHandle)
 	{
 		driver().switchTo().window(nameOrHandle);
 	}
 	
 	
-	protected static void switchbyTitle(String title)
+	protected static void switchByTitle(String title)
 	{
 		for(String handle : driver().getWindowHandles())
 		{

@@ -51,7 +51,7 @@
 		  padding: 2px 6px;
 		  width: 18em;
 		  background-color: DarkRed;
-		  border: none;
+		  border: solid black 1px;
 		  box-shadow: 3px 3px 4px black;
 		  cursor: pointer;
 		  font-size: 1.25em;
@@ -61,6 +61,7 @@
 		}
 		
 		details > p {
+		  border: solid black 1px;
 		  border-radius: 0 0 10px 10px;
 		  background-color: LightSlateGray;
 		  padding: 2px 6px;
@@ -72,6 +73,18 @@
 		.tabbed {
 			display:inline-block;
 		    width:30px;
+		}
+		
+		span.thumbnail {
+			line-height: 30px;
+    		border: none;
+    		display: inline-block;
+    		vertical-align: top;
+    		padding-bottom: 30px !important;
+		}
+		
+		.shifted {
+			margin-left: 90px;
 		}
             <![CDATA[
                 

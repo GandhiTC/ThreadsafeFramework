@@ -99,9 +99,19 @@ public class AddCustomerPage
 	// take notice of the birthday input box, it is different
 	public void custdob(String mm, String dd, String yyyy)
 	{
+		txtdob.clear();
+		
 		txtdob.sendKeys("value", mm);
 		txtdob.sendKeys("value", dd);
 		txtdob.sendKeys("value", yyyy);
+		
+		
+//		JavascriptExecutor js = (JavascriptExecutor) ldriver;
+//		js.executeScript("arguments[0].setAttribute(arguments[1], arguments[2]);",
+//				txtdob,  			//	element
+//                "value",			//	attribute name
+//                mm + dd + yyyy);	//	attribute value
+		
 		
 //		JavascriptExecutor js = (JavascriptExecutor) ldriver;
 ////		js.executeScript("arguments[0].focus(); arguments[0].blur();", txtdob);

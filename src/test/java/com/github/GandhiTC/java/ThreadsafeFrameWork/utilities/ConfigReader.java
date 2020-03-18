@@ -2,8 +2,6 @@ package com.github.GandhiTC.java.ThreadsafeFrameWork.utilities;
 
 
 
-//import java.io.File;
-//import java.io.FileInputStream;
 import java.io.FileReader;
 import java.util.Properties;
 
@@ -18,13 +16,6 @@ class ConfigReader
 	{
 		try
 		{
-//			File 			src 	= new File("./Configuration/testing.properties");
-//			FileInputStream fis 	= new FileInputStream(src);
-//
-//			properties = new Properties();
-//			properties.load(fis);
-			
-			
 			FileReader 		reader 	= new FileReader("./Configuration/testing.properties");
 			
 			properties = new Properties();
