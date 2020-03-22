@@ -12,6 +12,10 @@ public class Configurations
 //	protected 	static 	final 	String			username			= readconfig.getUsername();
 //	protected	static 	final 	String			password			= readconfig.getPassword();
 	
+	protected	static 		 	String			baseURL				= "";
+	protected 	static 		 	String			username			= "";
+	protected	static 		 	String			password			= "";
+	
 	protected 	static 	final 	String			firefoxPath			= readconfig.getFirefoxPath();
 	protected 	static 	final 	String			iePath				= readconfig.getIEPath();
 	protected 	static 	final 	String			chromePath			= readconfig.getChromePath();

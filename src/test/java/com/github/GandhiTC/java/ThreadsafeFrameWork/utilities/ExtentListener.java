@@ -37,17 +37,35 @@ public class ExtentListener implements ITestListener, ISuiteListener
 	private			String					methodName			= "";
 	private			Markup					markup;
 	
-	public	static	String					bodyText			= "";
+	private			WebDriver				driver;
+	
+	public	static	String					emailBodyText		= "";
 	private	static	int						passNum			= 0,
 											failNum			= 0,
 											skipNum			= 0;
 	
 	
+	//	Suite Start
+	@Override
+	public void onStart(ISuite suite)
+	{
+		logger = BaseClass.logger;
+	}
+	
+	
+	//	Start of All Tests in Suite
+	@Override
+	public void onStart(ITestContext context)
+	{
+	}
+	
+	
+	//	Individual Test Start
 	@Override
 	public void onTestStart(ITestResult result)
 	{
 						staticContext		= result.getTestContext();
-						logger 				= (Logger)staticContext.getAttribute("BaseLogger");
+//						logger 				= (Logger)staticContext.getAttribute("BaseLogger");
 						methodName 			= result.getMethod().getMethodName() + "()";
 					
 		String			suiteName			= staticContext.getSuite().getName();
@@ -58,8 +76,6 @@ public class ExtentListener implements ITestListener, ISuiteListener
 		String			packageName			= fullClassName.substring(0, periodIndex);
 		String			className			= fullClassName.substring(periodIndex + 1, fullClassName.length());
 		
-//		ExtentTest		test				= report.createTest(result.getTestClass().getName() + "." + methodName);
-//		ExtentTest		test				= report.createTest(suiteName + "<br>" + xmlTest + "<br><br>" + packageName + "<br>" + className + "<br>" + methodName);
 		ExtentTest		test				= report.createTest(methodName);
 		
 		testThread.set(test);
@@ -80,10 +96,12 @@ public class ExtentListener implements ITestListener, ISuiteListener
 		testThread.get().info(methodInfo.toString());
 		
 		//	user agent info from browser
-		testThread.get().info(DriverManager.userAgentInfo());
+		driver = (WebDriver)result.getTestContext().getAttribute("WebDriver");
+		testThread.get().info(DriverExtender.userAgentInfo(driver));
 	}
 
 
+	//	Test Pass
 	@Override
 	public void onTestSuccess(ITestResult result)
 	{
@@ -102,8 +120,9 @@ public class ExtentListener implements ITestListener, ISuiteListener
 	}
 
 
+	//	Test Fail
 	@Override
-	public void onTestFailure(ITestResult result)
+	public synchronized void onTestFailure(ITestResult result)
 	{
 		ITestContext 	testContext	= result.getTestContext();
 		
@@ -171,6 +190,7 @@ public class ExtentListener implements ITestListener, ISuiteListener
 	}
 
 
+	//	Test Skip
 	@Override
 	public void onTestSkipped(ITestResult result)
 	{
@@ -241,18 +261,14 @@ public class ExtentListener implements ITestListener, ISuiteListener
 	}
 
 
+	//	Test Fail Within Percentage
 	@Override
 	public void onTestFailedButWithinSuccessPercentage(ITestResult result)
 	{
 	}
-	
-	
-	@Override
-	public void onStart(ITestContext context)
-	{
-	}
 
 
+	//	End of All Tests in Suite
 	@Override
 	public void onFinish(ITestContext context)
 	{
@@ -267,20 +283,15 @@ public class ExtentListener implements ITestListener, ISuiteListener
 		//	The following code makes more sense to be ran in ISuiteListener's onFinish() method
 		//	but because we would not be able to pass resulting values to the report email
 		//	we update the values at the end of each test instead.
-		passNum		+= context.getPassedTests().getAllResults().size();
-		failNum		+= context.getFailedTests().getAllResults().size();
-		skipNum		+= context.getSkippedTests().getAllResults().size();
+		passNum		 += context.getPassedTests().getAllResults().size();
+		failNum		 += context.getFailedTests().getAllResults().size();
+		skipNum		 += context.getSkippedTests().getAllResults().size();
 		
-		bodyText = "Pass: " + passNum + "\r\n" + "Fail: " + failNum + "\r\n" + "Skip: " + skipNum + "\r\n";
+		emailBodyText = "Pass: " + passNum + "\r\n" + "Fail: " + failNum + "\r\n" + "Skip: " + skipNum + "\r\n";
 	}
 
 
-	@Override
-	public void onStart(ISuite suite)
-	{
-	}
-
-
+	//	End of Suite
 	@Override
 	public void onFinish(ISuite suite)
 	{

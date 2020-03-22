@@ -2,7 +2,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 
-<suite name="Example 2 Suite - Banking App">
+<suite name="Example 2 Suite - Banking App" parallel="tests" thread-count="4">
 	<listeners>
 		<listener class-name="com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.ExtentListener" />
 	</listeners>

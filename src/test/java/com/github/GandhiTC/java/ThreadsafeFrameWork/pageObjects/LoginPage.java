@@ -1,5 +1,7 @@
 package com.github.GandhiTC.java.ThreadsafeFrameWork.pageObjects;
 
+
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.CacheLookup;
@@ -8,51 +10,53 @@ import org.openqa.selenium.support.PageFactory;
 
 
 
+public class LoginPage
+{
+	private WebDriver driver;
 
-public class LoginPage {
 
-	WebDriver ldriver;
-	
-	
-	public LoginPage(WebDriver rdriver)
+	public LoginPage(WebDriver driver)
 	{
-		ldriver = rdriver;
-		PageFactory.initElements(ldriver, this);
+		this.driver = driver;
+		PageFactory.initElements(this.driver, this);
 	}
-	
-	
-	@FindBy(name="uid")
+
+
+	@FindBy(name = "uid")
 	@CacheLookup
-	WebElement txtUserName;
+	private WebElement	txtUserName;
 	
-	@FindBy(name="password")
+	@FindBy(name = "password")
 	@CacheLookup
-	WebElement txtPassword;
+	private WebElement	txtPassword;
 	
-	@FindBy(name="btnLogin")
+	@FindBy(name = "btnLogin")
 	@CacheLookup
-	WebElement btnLogin;
+	private WebElement	btnLogin;
 	
-	@FindBy(xpath="/html/body/div[3]/div/ul/li[15]/a")
+	@FindBy(xpath = "/html/body/div[3]/div/ul/li[15]/a")
 	@CacheLookup
-	WebElement lnkLogout;
-	
-	
-	public void setUserName(String uname)
+	private WebElement	lnkLogout;
+
+
+	public void setUserName(String userName)
 	{
-		txtUserName.sendKeys(uname);
+		txtUserName.sendKeys(userName);
 	}
-	
+
+
 	public void setPassword(String pwd)
 	{
 		txtPassword.sendKeys(pwd);
 	}
-	
+
+
 	public void clickSubmit()
 	{
 		btnLogin.click();
 	}
-	
+
+
 	public void clickLogout()
 	{
 		lnkLogout.click();

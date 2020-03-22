@@ -137,7 +137,7 @@ public class ExtentManager
 		
 		try
 		{
-			DriverManager.bringToFront(false);
+//			DriverManager.bringToFront(driver, false);
 			
 			Point 			position 			= driver.manage().window().getPosition();
 			Dimension 		size 				= driver.manage().window().getSize();

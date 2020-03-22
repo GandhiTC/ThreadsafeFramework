@@ -1,4 +1,4 @@
-package com.github.GandhiTC.java.ThreadsafeFrameWork.tests;
+package com.github.GandhiTC.java.ThreadsafeFrameWork.utilities;
 
 
 
@@ -25,80 +25,125 @@ import org.apache.logging.log4j.Logger;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
-import org.testng.asserts.SoftAssert;
-import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.JDBCDriver;
-import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.DriverManager;
-import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.ExtentListener;
-import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.ExtentManager;
 
 
 
 public abstract class BaseClass extends DriverManager
 {
-	private 	static 	final 	JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
-	private		static			boolean					sendEmail		= false;
-	private		static			boolean					isService		= false;
-	private		static			ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
-	protected	static			SoftAssert				softAssert		= new SoftAssert();
-	protected	static 			String					baseURL			= "";
-	protected 	static 		 	String					username		= "";
-	protected	static 		 	String					password		= "";
-	protected	static 			Logger					logger;
+	private		static	XLUtils					xlutils			= new XLUtils();
+	private		static	ThreadLocal<XLUtils>	threadedXL		= new ThreadLocal<>();
+	private		static 	JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
+	private		static	ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
+	private		static	boolean					runHeadless		= false;
+	private		static	boolean					runService		= false;
+	private		static	boolean					isGridTest		= false;
+	private		static	boolean					emailReport		= false;
+
+	public		static	XLUtils					xlUtils			= xlutils();
+	public		static 	Logger					logger			= logger();
+	private		static 	JDBCDriver 				db;
+	
+//	private				XLUtils					xlutils			= new XLUtils();
+//	private				ThreadLocal<XLUtils>	threadedXL		= new ThreadLocal<>();
+//	private				JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
+//	private				ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
+//	private				boolean					runHeadless		= false;
+//	private				boolean					runService		= false;
+//	private				boolean					isGridTest		= false;
+//	private				boolean					emailReport		= false;
+//
+//	public				XLUtils					xlUtils			= xlutils();
+//	public		static 	Logger					logger			= logger();
+//	private				JDBCDriver 				db;
 
 
-	@BeforeTest
-	@Parameters(value = {"browser", "runHeadless", "runService", "isGridTest", "emailReport"})
-	protected static void setup(String browser, String runHeadless, String runService, String isGridTest, String emailReport, ITestContext testContext)
+	//	Start setup
+	
+	//	Suite
+	@BeforeSuite
+	@Parameters(value = {"runHeadless", "runService", "isGridTest", "emailReport"})
+	protected void setupSuite(String runHeadless, String runService, String isGridTest, String emailReport)
 	{
-		sendEmail = Boolean.valueOf(emailReport);
-		isService = Boolean.valueOf(runService);
+		BaseClass.runHeadless 	= Boolean.valueOf(runHeadless);
+		BaseClass.runService 	= Boolean.valueOf(runService);
+		BaseClass.isGridTest 	= Boolean.valueOf(isGridTest);
+		BaseClass.emailReport 	= Boolean.valueOf(emailReport);
+		
+//		this.runHeadless 	= Boolean.valueOf(runHeadless);
+//		this.runService 	= Boolean.valueOf(runService);
+//		this.isGridTest 	= Boolean.valueOf(isGridTest);
+//		this.emailReport 	= Boolean.valueOf(emailReport);
 		
 		setupLogging();
+		setupDB();
+		setupXL();
+	}
+	
+	
+	//	Test
+	@BeforeTest
+	@Parameters(value = {"browser"})
+	protected void setupTest(String browser, ITestContext testContext)
+	{
+		//	Setup WebDriver according to options
+		setupDriver(browser, runHeadless, runService, isGridTest);
 		
-		threadedDB.set(dbInstance);
-		getCredentialsFromDatabase();
-		
-		setupDriver(browser, Boolean.valueOf(runHeadless), Boolean.valueOf(runService), Boolean.valueOf(isGridTest));
-		testContext.setAttribute("BaseLogger", logger);
-		testContext.setAttribute("WebDriver", driver());
+		//	Set test context attributes, to be used by TestNG/Extent listeners
 		testContext.setAttribute("RunningHeadless", false);
 		
-		if(Boolean.valueOf(runHeadless))
+		//	Update attribute value conditionally
+		if(runHeadless)
 		{
 			if((browser.equalsIgnoreCase("firefox")) || (browser.equalsIgnoreCase("chrome")))
 			{
 				testContext.setAttribute("RunningHeadless", true);
 			}
 		}
+		
+		testContext.setAttribute("BaseLogger", logger);
+		testContext.setAttribute("WebDriver", driver);
 	}
 	
+	//	End setup
 	
+	
+	
+	
+	//	Start teardown
+	
+	//	Test
 	@AfterTest
-	protected static void tearDownTest()
+	protected void tearDownTest()
 	{
-		db().closeConnection();
-		
-		if(driver() != null)
+		if(driver != null)
 		{
-			driver().quit();
+			driver.quit();
+			driver = null;
 		}
 	}
 	
 	
+	//	Suite
 	@AfterSuite
-	protected static void tearDownSuite()
+	protected void tearDownSuite()
 	{
-		if(isService)
+		if(runService)
 		{
 			stopService();
 		}
 
 		removeDriver();
+		removeDB();
+		removeXL();
 		
 		
 		/*
+		 * Run the following to email the generated Extent test report
+		 * at the end of each TestNG test suite.
+		 * 
 		 * Assumes you have created the following system environment variables.
 		 *  - TestEmailFrom
 		 *  - TestEmailTo
@@ -118,63 +163,97 @@ public abstract class BaseClass extends DriverManager
 		 *  - http://extentreports.com/docs/versions/4/net/email-reporter.html
 		 * 
 		 */
-		if(sendEmail)
+		if(emailReport)
 		{
 			String	fromEmail		= System.getenv("TestEmailFrom");
 			String	toEmail			= System.getenv("TestEmailTo");
 			String	emailPassword	= System.getenv("TestEmailPassword");
 	
-			sendHTMLReportByGmail(fromEmail, emailPassword, toEmail, "Test Report", ExtentListener.bodyText);
+			sendHTMLReportByGmail(fromEmail, emailPassword, toEmail, "Test Report", ExtentListener.emailBodyText);
+		}
+	}
+	
+	//	End teardown
+	
+	
+	
+	
+	//	Start logger
+	
+	private static synchronized void setupLogging()
+	{
+		if(logger == null)
+		{
+			//	because this property is needed in log4j2.xml (log4j's config file)
+			//	make sure it is set before initializing the logger
+			System.setProperty("logsFolder", logsFolder);
+			
+//			logger = LogManager.getLogger(BaseClass.class.getPackage().getName());
+			logger = LogManager.getLogger("ThreadsafeFramework");
+			
+			//	disabling specific loggers must come after initializing log4j logger
+			java.util.logging.Logger.getLogger("org.openqa.selenium.remote").setLevel(Level.OFF);
 		}
 	}
 	
 	
-	private static void setupLogging()
-	{
-		//	because this property is needed in log4j2.xml (log4j's config file)
-		//	make sure it is set before initializing the logger
-		System.setProperty("logsFolder", logsFolder);
-		
-		logger = LogManager.getLogger(BaseClass.class.getPackage().getName());
-		
-		//	disabling specific loggers must come after initializing log4j logger
-		java.util.logging.Logger.getLogger("org.openqa.selenium.remote").setLevel(Level.OFF);
-	}
-	
-	
-	public static Logger logger()
+	private static Logger logger()
 	{
 		if(logger == null)
 		{
 			setupLogging();
 		}
-		
+
 		return logger;
 	}
 	
+	//	End logger
 	
-	protected static JDBCDriver db()
+	
+	
+	
+	//	Start DB
+	
+	private static synchronized void setupDB()
 	{
-		return threadedDB.get();
+		if(db == null)
+		{
+			threadedDB.set(dbInstance);
+			db = threadedDB.get();
+			getCredentialsFromDatabase();
+		}
 	}
 	
 	
-	protected static void getCredentialsFromDatabase()
+	private static void removeDB()
 	{
-		if(baseURL.equalsIgnoreCase("") || username.equalsIgnoreCase("") || password.equalsIgnoreCase(""))
+		threadedDB.remove();
+		
+		if(db != null)
+		{
+			db.closeConnection();
+			clearCredentialsFromDatabase();
+			db = null;
+		}
+	}
+	
+	
+	private static void getCredentialsFromDatabase()
+	{
+		if(baseURL.isEmpty() || username.isEmpty() || password.isEmpty())
 		{
 			try
 			{
 				//	Check if "pomCredentials" exists in the database.  If it does not, add it.
-				if(!db().checkIfTableExists("pomCredentials"))
+				if(!db.checkIfTableExists("pomCredentials"))
 				{
 					System.out.println("\r\nCreating \"pomCredentials\" table in database.\r\n");
 
-					db().parseSqlFile("src/test/resources/InsertCredsTable.sql", false, true, false, false);
+					db.parseSqlFile("src/test/resources/InsertCredsTable.sql", false, true, false, false);
 				}
 
 
-				ResultSet resultSet = db().query("select * from pomCredentials LIMIT 1");
+				ResultSet resultSet = db.query("select * from pomCredentials LIMIT 1");
 				//	LIMIT 1 gets first row only
 				//	LIMIT 1, 1 gets second row only
 				//	Limit 3, 1 gets 4th row only
@@ -194,11 +273,63 @@ public abstract class BaseClass extends DriverManager
 			}
 			finally
 			{
-				db().closeConnection();
+				db.closeConnection();
 			}
 		}
 	}
 	
+	
+	private static void clearCredentialsFromDatabase()
+	{
+		baseURL  = "";
+		username = "";
+		password = "";
+	}
+	
+	//	End DB
+	
+	
+	
+	
+	//	Start excel utils
+	
+	private static synchronized void setupXL()
+	{
+		if(xlUtils == null)
+		{
+			threadedXL.set(xlutils);
+			xlUtils = threadedXL.get();
+		}
+	}
+	
+	
+	private static XLUtils xlutils()
+	{
+		if(xlUtils == null)
+		{
+			setupXL();
+		}
+
+		return xlUtils;
+	}
+	
+	
+	private static void removeXL()
+	{
+		threadedXL.remove();
+
+		if(xlUtils != null)
+		{
+			xlUtils = null;
+		}
+	}
+	
+	//	End excel utils
+	
+	
+	
+	
+	//	Start Email
 	
 	private static void sendHTMLReportByGmail(String from, String pass, String to, String subject, String body)
 	{
@@ -270,7 +401,13 @@ public abstract class BaseClass extends DriverManager
 			mex.printStackTrace();
 		}
 	}
+	
+	//	End Email
 
+	
+	
+	
+	//	Start miscellaneous
 
 	public String randomString(int numOfChars)
 	{
@@ -282,4 +419,6 @@ public abstract class BaseClass extends DriverManager
 	{
 		return Integer.parseInt(RandomStringUtils.randomNumeric(numOfChars));
 	}
+	
+	//	End miscellaneous
 }

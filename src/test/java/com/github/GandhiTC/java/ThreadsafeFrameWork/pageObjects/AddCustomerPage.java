@@ -15,67 +15,67 @@ import org.openqa.selenium.support.PageFactory;
 
 public class AddCustomerPage
 {
-	WebDriver ldriver;
+	private WebDriver driver;
 
 
-	public AddCustomerPage(WebDriver rdriver)
+	public AddCustomerPage(WebDriver driver)
 	{
-		ldriver = rdriver;
-		PageFactory.initElements(ldriver, this);
+		this.driver = driver;
+		PageFactory.initElements(this.driver, this);
 	}
 
 
 	@FindBy(how = How.XPATH, using = "/html/body/div[3]/div/ul/li[2]/a")
 	@CacheLookup
-	WebElement	lnkAddNewCustomer;
+	private WebElement	lnkAddNewCustomer;
 	
 	@FindBy(how = How.NAME, using = "name")
 	@CacheLookup
-	WebElement	txtCustomerName;
+	private WebElement	txtCustomerName;
 	
 	@FindBy(how = How.NAME, using = "rad1")
 	@CacheLookup
-	WebElement	rdGender;
+	private WebElement	rdGender;
 	
 	@CacheLookup
 	@FindBy(how = How.ID_OR_NAME, using = "dob")
-	WebElement	txtdob;
+	private WebElement	txtdob;
 	
 	@CacheLookup
 	@FindBy(how = How.NAME, using = "addr")
-	WebElement	txtaddress;
+	private WebElement	txtaddress;
 	
 	@CacheLookup
 	@FindBy(how = How.NAME, using = "city")
-	WebElement	txtcity;
+	private WebElement	txtcity;
 	
 	@CacheLookup
 	@FindBy(how = How.NAME, using = "state")
-	WebElement	txtstate;
+	private WebElement	txtstate;
 	
 	@CacheLookup
 	@FindBy(how = How.NAME, using = "pinno")
-	WebElement	txtpinno;
+	private WebElement	txtpinno;
 	
 	@CacheLookup
 	@FindBy(how = How.NAME, using = "telephoneno")
-	WebElement	txttelephoneno;
+	private WebElement	txttelephoneno;
 	
 	@CacheLookup
 	@FindBy(how = How.NAME, using = "emailid")
-	WebElement	txtemailid;
+	private WebElement	txtemailid;
 	
 	@CacheLookup
 	@FindBy(how = How.NAME, using = "password")
-	WebElement	txtpassword;
+	private WebElement	txtpassword;
 	
 	@CacheLookup
 	@FindBy(how = How.NAME, using = "sub")
-	WebElement	btnSubmit;
+	private WebElement	btnSubmit;
 	
 	@CacheLookup
 	@FindBy(how = How.TAG_NAME, using = "body")
-	WebElement	body;
+	private WebElement	body;
 
 
 	public void clickAddNewCustomer()
@@ -94,32 +94,26 @@ public class AddCustomerPage
 	{
 		rdGender.click();
 	}
-	
-	
+
+
 	// take notice of the birthday input box, it is different
 	public void custdob(String mm, String dd, String yyyy)
 	{
 		txtdob.clear();
-		
 		txtdob.sendKeys("value", mm);
 		txtdob.sendKeys("value", dd);
 		txtdob.sendKeys("value", yyyy);
-		
-		
-//		JavascriptExecutor js = (JavascriptExecutor) ldriver;
-//		js.executeScript("arguments[0].setAttribute(arguments[1], arguments[2]);",
-//				txtdob,  			//	element
-//                "value",			//	attribute name
-//                mm + dd + yyyy);	//	attribute value
-		
-		
-//		JavascriptExecutor js = (JavascriptExecutor) ldriver;
-////		js.executeScript("arguments[0].focus(); arguments[0].blur();", txtdob);
-////		js.executeScript("arguments[0].focus(); arguments[0].blur(); return true", txtdob);
-////		js.executeScript("validatedob(); return true");
-//		js.executeScript("validatedob();");
-
-//		txtdob.sendKeys(Keys.ENTER);
+		//		JavascriptExecutor js = (JavascriptExecutor) ldriver;
+		//		js.executeScript("arguments[0].setAttribute(arguments[1], arguments[2]);",
+		//				txtdob,  			//	element
+		//                "value",			//	attribute name
+		//                mm + dd + yyyy);	//	attribute value
+		//		JavascriptExecutor js = (JavascriptExecutor) ldriver;
+		////		js.executeScript("arguments[0].focus(); arguments[0].blur();", txtdob);
+		////		js.executeScript("arguments[0].focus(); arguments[0].blur(); return true", txtdob);
+		////		js.executeScript("validatedob(); return true");
+		//		js.executeScript("validatedob();");
+		//		txtdob.sendKeys(Keys.ENTER);
 	}
 
 

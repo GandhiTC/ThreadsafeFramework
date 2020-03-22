@@ -7,6 +7,7 @@ import org.testng.ITestContext;
 import org.testng.annotations.Test;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.pageObjects.AddCustomerPage;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.pageObjects.LoginPage;
+import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.BaseClass;
 
 
 
@@ -19,11 +20,11 @@ public class Example2_003_AddCustomer extends BaseClass
 		
 		try
 		{
-			maximizeWindow();
-			getURL(baseURL, true);
+			maximizeWindow(driver);
+			getURL(driver, baseURL, true);
 			
-			LoginPage		lp		= new LoginPage(driver());
-			AddCustomerPage	addcust	= new AddCustomerPage(driver());
+			LoginPage		lp		= new LoginPage(driver);
+			AddCustomerPage	addcust	= new AddCustomerPage(driver);
 			
 			//	logging in
 			errMsg	= "Error while logging in";
@@ -59,16 +60,16 @@ public class Example2_003_AddCustomer extends BaseClass
 			//	validation
 			logger.info("validation started");
 			
-			if(alertIsPresent())
+			if(alertIsPresent(driver))
 			{
-				errMsg = alertText();
-				acceptAlert();
+				errMsg = alertText(driver);
+				acceptAlert(driver);
 			    context.setAttribute("Note", errMsg);
 				logger.error("test case failed : " + errMsg);
 				Assert.fail(errMsg);
 			}
 			
-			if(!driver().getPageSource().contains("Customer Registered Successfully"))
+			if(!driver.getPageSource().contains("Customer Registered Successfully"))
 			{
 				errMsg	= "Error in validation";
 				context.setAttribute("Note", errMsg);
@@ -85,7 +86,7 @@ public class Example2_003_AddCustomer extends BaseClass
 		{
 			errMsg = e.getMessage();
 			context.setAttribute("Note", errMsg);
-			String causation = e.getCause().equals(null) ? errMsg : e.getCause().toString();
+			String causation = e.getCause() == null ? errMsg : e.getCause().toString();
 			logger.error("test case failed : " + causation);
 			Assert.fail(errMsg);
 		}

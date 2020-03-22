@@ -11,32 +11,35 @@ import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
 import com.github.GandhiTC.java.ThreadsafeFrameWork.pageObjects.LoginPage;
+import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.BaseClass;
 
 
 
 public class Example2_001_Login extends BaseClass
 {
 	private LoginPage 	lp;
-	private Set<String> errSet;
+	private Set<String> errSet = new LinkedHashSet<String>();
 	
 	
 	@Test
 	public void loginTest(ITestContext context) throws IOException, AWTException, InterruptedException
 	{
-		lp		= new LoginPage(driver());
-		errSet	= new LinkedHashSet<String>();
+		//	Clear errSet at the beginning of every test
+		errSet.clear();
 		
-		maximizeWindow();
-		getURL(baseURL, true);
+		lp = new LoginPage(driver);
+		
+		maximizeWindow(driver);
+		getURL(driver, baseURL, true);
 		
 		
 		//	1)  checking if element exists
 		//	2)  printing a collection of element (non-css) attributes
 		By by = By.name("uid");
 		
-		if(elementExists(by))
+		if(elementExists(driver, by))
 		{
-			printAttributes(driver().findElement(by));
+			printAttributes(driver, driver.findElement(by));
 		}
 		else
 		{
@@ -52,7 +55,7 @@ public class Example2_001_Login extends BaseClass
 		}
 		catch(Exception e)
 		{
-			softFail(errSet, "Username webelement not found");
+			softFail("Username webelement not found");
 		}
 		
 		
@@ -64,7 +67,7 @@ public class Example2_001_Login extends BaseClass
 		}
 		catch(Exception e)
 		{
-			softFail(errSet, "Password webelement not found");
+			softFail("Password webelement not found");
 		}
 		
 		
@@ -76,18 +79,18 @@ public class Example2_001_Login extends BaseClass
 		}
 		catch(Exception e)
 		{
-			softFail(errSet, "Submit button webelement not found");
+			softFail("Submit button webelement not found");
 		}
 		
 		
 		//	test page title
 		try
 		{
-			softAssert.assertEquals(driver().getTitle(), "Guru99 Bank Manager HomePage");
+			softAssert.assertEquals(driver.getTitle(), "Guru99 Bank Manager HomePage");
 		}
 		catch(Exception e)
 		{
-			softFail(errSet, "Page title is not correct");
+			softFail("Page title is not correct");
 		}
 		
 		
@@ -106,11 +109,10 @@ public class Example2_001_Login extends BaseClass
 	}
 	
 	
-	private static void softFail(Set<String> errSet, String errMsg)
+	private void softFail(String errMsg)
 	{
 		logger.error(errMsg);
 		softAssert.fail(errMsg);
 		errSet.add(errMsg);
-//		softAssert.fail(errSet.toArray()[errSet.size() - 1].toString());
 	}
 }

@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import org.apache.logging.log4j.Logger;
-import com.github.GandhiTC.java.ThreadsafeFrameWork.tests.BaseClass;
 
 
 
@@ -25,7 +24,7 @@ public enum JDBCDriver
 	INSTANCE("Configuration/database.properties");
 	
 	
-	private 		Logger		logger;
+	private 	 	Logger		logger;
 	private 		String 		host;
 	private 		String 		port;
 	private 		String 		database;
@@ -37,9 +36,9 @@ public enum JDBCDriver
 	private 		String		prevQuery	= "";
 	
 	
-	JDBCDriver(String propertiesFilePath)
+	private JDBCDriver(String propertiesFilePath)
 	{
-		this.logger = BaseClass.logger();
+		this.logger = BaseClass.logger;
 		
 		Properties props = new Properties();
 		FileInputStream fis;
@@ -51,9 +50,8 @@ public enum JDBCDriver
 		}
 		catch(IOException e)
 		{
-			logger.error(e.getMessage());
+			this.logger.error(e.getMessage());
 			e.printStackTrace();
-//			System.err.println(e.getMessage());
 		}
 
 		this.host		= props.getProperty("host");
