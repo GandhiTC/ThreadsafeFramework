@@ -60,9 +60,27 @@ In addition to the base features, the following options can be changed by editin
 ---------------------------------------------------------------------------------------------------------------------------------------
 To Test
 ---------------------------------------------------------------------------------------------------------------------------------------
-Edit parameters in your .xml TestNG file
+Go to : http://demo.guru99.com/
+		Submit any email address, copy the username and password credentials
+		Add credentials to LoginData.xlsx in testData package
+		Update credentials in "Values" section of the InsertCredsTable.sql file in ./src/test/resources/
+		Update credentials in testing.properties file in Configuration directory
+		
+Go to : https://www.freemysqlhosting.net/
+		Create new account and database
+		Update database credentials in database.properties file in Configuration directory
+		
+To send email reports:
+		Setup a gmail account
+		Setup an App password - for details, see : https://support.google.com/accounts/answer/185833
+		Add the following system environment variables:
+			TestEmailFrom 	  - Your new email address
+			TestEmailTo   	  - The email address you want to send reports to
+			TestEmailPassword - The App password created for your account
 
-Edit WebDriver options in: ./src/test/java/com/github/GandhiTC/java/ThreadSafeFrameWork/utilities/DriverManager
+Edit parameters as needed in your .xml TestNG file in Runners directory
+
+Edit WebDriver options as needed in: ./src/test/java/com/github/GandhiTC/java/ThreadSafeFrameWork/utilities/DriverManager
 
 Run Example1_TestNG.xml as TestNG Suite to see a quick and easy example of threading at work
 
