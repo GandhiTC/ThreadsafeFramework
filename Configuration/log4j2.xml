@@ -85,9 +85,9 @@
 			<AppenderRef ref="console" />
 		</Root>
 		
-		<AsyncLogger name="com.github.GandhiTC.java.ThreadsafeFrameWork.tests" additivity="true" includeLocation="true">
+		<AsyncLogger name="ThreadsafeFramework" additivity="true" includeLocation="true">
 			<AppenderRef ref="errorFiles" level="error" />
-			<AppenderRef ref="infoFiles" level="info" />
+			<AppenderRef ref="infoFiles"  level="info"  />
 		</AsyncLogger>
 	</Loggers>
 	
