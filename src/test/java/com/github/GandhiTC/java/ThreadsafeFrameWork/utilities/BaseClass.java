@@ -60,6 +60,8 @@ public abstract class BaseClass extends DriverManager
 //	private				JDBCDriver 				db;
 
 
+	
+	
 	//	Start setup
 	
 	//	Suite

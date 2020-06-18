@@ -97,7 +97,7 @@ public class ExtentListener implements ITestListener, ISuiteListener
 		
 		//	user agent info from browser
 		driver = (WebDriver)result.getTestContext().getAttribute("WebDriver");
-		testThread.get().info(DriverExtender.userAgentInfo(driver));
+		testThread.get().info(DriverManager.userAgentInfo(driver));
 	}
 
 

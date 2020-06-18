@@ -15,7 +15,7 @@ import com.github.GandhiTC.java.ThreadsafeFrameWork.utilities.BaseClass;
 public class Example2_002_Login extends BaseClass
 {
 	@Test(dataProvider="LoginData")
-	public void loginDDT(String user,String pwd, ITestContext context) throws InterruptedException
+	public void loginDDT(String user, String pwd, ITestContext context) throws InterruptedException
 	{
 		maximizeWindow(driver);
 		getURL(driver, baseURL, true);
