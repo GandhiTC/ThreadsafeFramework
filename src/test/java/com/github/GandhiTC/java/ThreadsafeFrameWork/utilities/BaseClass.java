@@ -33,35 +33,25 @@ import org.testng.annotations.Parameters;
 
 public abstract class BaseClass extends DriverManager
 {
-	private		static	XLUtils					xlutils			= new XLUtils();
-	private		static	ThreadLocal<XLUtils>	threadedXL		= new ThreadLocal<>();
-	private		static 	JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
-	private		static	ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
 	private		static	boolean					runHeadless		= false;
 	private		static	boolean					runService		= false;
 	private		static	boolean					isGridTest		= false;
 	private		static	boolean					emailReport		= false;
-
-	public		static	XLUtils					xlUtils			= xlutils();
+	
 	public		static 	Logger					logger			= logger();
+	
+	//	maintain order
+	private		static 	JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
+	private		static	ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
 	private		static 	JDBCDriver 				db;
 	
-//	private				XLUtils					xlutils			= new XLUtils();
-//	private				ThreadLocal<XLUtils>	threadedXL		= new ThreadLocal<>();
-//	private				JDBCDriver 				dbInstance		= JDBCDriver.INSTANCE;
-//	private				ThreadLocal<JDBCDriver>	threadedDB		= new ThreadLocal<>();
-//	private				boolean					runHeadless		= false;
-//	private				boolean					runService		= false;
-//	private				boolean					isGridTest		= false;
-//	private				boolean					emailReport		= false;
-//
-//	public				XLUtils					xlUtils			= xlutils();
-//	public		static 	Logger					logger			= logger();
-//	private				JDBCDriver 				db;
+	//	maintain order
+	private		static	XLUtils					xlInstance		= new XLUtils();
+	private		static	ThreadLocal<XLUtils>	threadedXL		= new ThreadLocal<>();
+	public		static	XLUtils					xlUtils			= xlUtils();
 
 
-	
-	
+
 	//	Start setup
 	
 	//	Suite
@@ -73,11 +63,6 @@ public abstract class BaseClass extends DriverManager
 		BaseClass.runService 	= Boolean.valueOf(runService);
 		BaseClass.isGridTest 	= Boolean.valueOf(isGridTest);
 		BaseClass.emailReport 	= Boolean.valueOf(emailReport);
-		
-//		this.runHeadless 	= Boolean.valueOf(runHeadless);
-//		this.runService 	= Boolean.valueOf(runService);
-//		this.isGridTest 	= Boolean.valueOf(isGridTest);
-//		this.emailReport 	= Boolean.valueOf(emailReport);
 		
 		setupLogging();
 		setupDB();
@@ -253,15 +238,29 @@ public abstract class BaseClass extends DriverManager
 
 					db.parseSqlFile("src/test/resources/InsertCredsTable.sql", false, true, false, false);
 				}
-
-
-				ResultSet resultSet = db.query("select * from pomCredentials LIMIT 1");
+				
+				
+				//	Populate "pomCredentials" if table exists but is empty
+				ResultSet resultSet = db.query("SELECT COUNT(*) AS rowcount FROM pomCredentials");
+				resultSet.next();
+				int count = resultSet.getInt("rowcount");
+				
+				if(count < 1)
+				{
+					System.out.println("\r\n\"pomCredentials\" table is empty, populating data.\r\n");
+					
+					db.parseSqlFile("src/test/resources/InsertCredsTable.sql", false, true, false, false);
+				}
+				
+				
+				//	Use first row of "pomCredentials" table, to assign framework values
+				resultSet = db.query("select * from pomCredentials LIMIT 1");
 				//	LIMIT 1 gets first row only
 				//	LIMIT 1, 1 gets second row only
 				//	Limit 3, 1 gets 4th row only
 				//	select * from tableName ORDER BY columnName DESC LIMIT 2, 1 gets 3rd from last row only
-
-				while (resultSet.next())
+				
+				while(resultSet.next())
 				{
 					baseURL  = resultSet.getString("baseURL");
 					username = resultSet.getString("username");
@@ -299,13 +298,13 @@ public abstract class BaseClass extends DriverManager
 	{
 		if(xlUtils == null)
 		{
-			threadedXL.set(xlutils);
+			threadedXL.set(xlInstance);
 			xlUtils = threadedXL.get();
 		}
 	}
 	
 	
-	private static XLUtils xlutils()
+	private static XLUtils xlUtils()
 	{
 		if(xlUtils == null)
 		{
@@ -341,8 +340,8 @@ public abstract class BaseClass extends DriverManager
 		
 		properties.put("mail.smtp.host", host);
 		properties.put("mail.smtp.port", "587");
-		properties.put("mail.smtp.starttls.enable", "true");	//	use with port 587
-//		properties.put("mail.smtp.ssl.enable", "true");			//	use with port 465
+		properties.put("mail.smtp.starttls.enable", "true");	//	use with TLS port 587
+//		properties.put("mail.smtp.ssl.enable", "true");			//	use with SSL port 465
 		properties.put("mail.smtp.auth", "true");
 		
 		try
