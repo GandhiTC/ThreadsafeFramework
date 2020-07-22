@@ -25,6 +25,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.Point;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -756,12 +757,53 @@ public abstract class DriverManager extends Configurations
 	}
 	
 	
+	/*
+		Width & Height are greater than 0
+		CSS "visibility" property is not "hidden"
+		CSS "display" property is not "none", ie not style="display:none;"
+		
+		Be careful when checking with in-page/modal "pop-ups"
+		Even though the pop-up may not be visible on the actual web page, it will still be visible on the HTML DOM
+	 */
+	public static boolean isVisible(WebDriver driver, WebElement element, long seconds)
+	{
+		try
+		{
+			WebDriverWait wait = new WebDriverWait(driver, seconds);
+			wait.until(ExpectedConditions.visibilityOf(element));
+			return true;
+		}
+		catch(TimeoutException e)
+		{
+			return false;
+		}
+	}
+	
+	
+	//	Counts both visible and invisible elements
 	public static boolean elementExists(WebDriver driver, By by)
 	{
 		try
 		{
-			driver.findElement(by);
-			return true;
+			List<WebElement> elementsList = driver.findElements(by);
+			
+			return elementsList.size() > 0 ? true : false;
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+	}
+	
+	
+	//	Counts visible and invisible elements
+	public static boolean elementExists(WebDriver driver, WebElement element)
+	{
+		try
+		{
+			List<WebElement> elementsList = driver.findElements(By.cssSelector("*"));
+			
+			return elementsList.contains(element) ? true : false;
 		}
 		catch(Exception e)
 		{
