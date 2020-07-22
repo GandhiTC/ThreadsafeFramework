@@ -15,11 +15,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 interface XLMethods
 {
-	default int getRowCount(String xlfile, String xlsheet) throws IOException
+	default int getRowCount(String xlFile, String xlSheet) throws IOException
 	{
-		FileInputStream		fi		 	= new FileInputStream(xlfile);
+		FileInputStream		fi		 	= new FileInputStream(xlFile);
 		XSSFWorkbook		wb		 	= new XSSFWorkbook(fi);
-		XSSFSheet			ws			= wb.getSheet(xlsheet);
+		XSSFSheet			ws			= wb.getSheet(xlSheet);
 		
 		int 				rowcount 	= ws.getLastRowNum();
 		
@@ -30,12 +30,12 @@ interface XLMethods
 	}
 
 
-	default int getCellCount(String xlfile, String xlsheet, int rownum) throws IOException
+	default int getCellCount(String xlFile, String xlSheet, int rowIdx) throws IOException
 	{
-		FileInputStream		fi			= new FileInputStream(xlfile);
+		FileInputStream		fi			= new FileInputStream(xlFile);
 		XSSFWorkbook		wb			= new XSSFWorkbook(fi);
-		XSSFSheet			ws			= wb.getSheet(xlsheet);
-		XSSFRow				row			= ws.getRow(rownum);
+		XSSFSheet			ws			= wb.getSheet(xlSheet);
+		XSSFRow				row			= ws.getRow(rowIdx);
 		
 		int 				cellcount 	= row.getLastCellNum();
 		
@@ -46,13 +46,13 @@ interface XLMethods
 	}
 
 
-	default String getCellData(String xlfile, String xlsheet, int rownum, int colnum) throws IOException
+	default String getCellData(String xlFile, String xlSheet, int rowIdx, int colIdx) throws IOException
 	{
-		FileInputStream		fi			= new FileInputStream(xlfile);
+		FileInputStream		fi			= new FileInputStream(xlFile);
 		XSSFWorkbook		wb			= new XSSFWorkbook(fi);
-		XSSFSheet			ws			= wb.getSheet(xlsheet);
-		XSSFRow				row			= ws.getRow(rownum);
-		XSSFCell			cell		= row.getCell(colnum);
+		XSSFSheet			ws			= wb.getSheet(xlSheet);
+		XSSFRow				row			= ws.getRow(rowIdx);
+		XSSFCell			cell		= row.getCell(colIdx);
 		
 		String data;
 
@@ -85,17 +85,17 @@ interface XLMethods
 	}
 
 
-	default void setCellData(String xlfile, String xlsheet, int rownum, int colnum, String data) throws IOException
+	default void setCellData(String xlFile, String xlSheet, int rowIdx, int colIdx, String data) throws IOException
 	{
-		FileInputStream		fi			= new FileInputStream(xlfile);
+		FileInputStream		fi			= new FileInputStream(xlFile);
 		XSSFWorkbook		wb			= new XSSFWorkbook(fi);
-		XSSFSheet			ws			= wb.getSheet(xlsheet);
-		XSSFRow				row			= ws.getRow(rownum);
-		XSSFCell			cell		= row.getCell(colnum);
+		XSSFSheet			ws			= wb.getSheet(xlSheet);
+		XSSFRow				row			= ws.getRow(rowIdx);
+		XSSFCell			cell		= row.getCell(colIdx);
 		
 		cell.setCellValue(data);
 		
-		FileOutputStream	fo 			= new FileOutputStream(xlfile);
+		FileOutputStream	fo 			= new FileOutputStream(xlFile);
 		
 		wb.write(fo);
 		wb.close();
