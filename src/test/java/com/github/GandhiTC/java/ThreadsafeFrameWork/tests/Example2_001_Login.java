@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.openqa.selenium.By;
+//import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
@@ -33,10 +34,12 @@ public class Example2_001_Login extends BaseClass
 		getURL(driver, baseURL, true);
 		
 		
-		//	1)  checking if element exists
-		//	2)  printing a collection of element (non-css) attributes
-		By by = By.name("uid");
+		//	1)  Check if element exists
+		//	2)  Print a collection of (non-css) element attributes
 		
+		//	By version
+		By by = By.name("uid");
+
 		if(elementExists(driver, by))
 		{
 			printAttributes(driver, driver.findElement(by));
@@ -45,6 +48,18 @@ public class Example2_001_Login extends BaseClass
 		{
 			System.err.println("Element does not exist.\r\n");
 		}
+		
+		//	WebElement version
+//		WebElement usr = driver.findElement(By.name("uid"));
+//
+//		if(elementExists(driver, usr))
+//		{
+//			printAttributes(driver, usr);
+//		}
+//		else
+//		{
+//			System.err.println("Element does not exist.\r\n");
+//		}
 		
 		
 		//	test username element
